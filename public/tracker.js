@@ -260,13 +260,18 @@ fetch("/tracker", {
 
     if(!res.ok){
 
+    const erroServidor = await res.json();
 
-        throw new Error(
-            "Erro ao enviar visita"
-        );
+    console.error(
+        "Erro vindo do backend:",
+        erroServidor
+    );
 
+    throw new Error(
+        erroServidor.erro || "Erro ao enviar visita"
+    );
 
-    }
+}
 
 
     return res.json();
