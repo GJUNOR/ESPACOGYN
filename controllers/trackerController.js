@@ -43,10 +43,14 @@ async function registrarVisita(req, res) {
     } catch(err) {
 
 
-        console.error(
-            "❌ Erro no controller tracker:",
-            err
-        );
+       console.error(
+    "ERRO COMPLETO TRACKER:",
+    JSON.stringify(
+        erro,
+        null,
+        2
+    )
+);
 
 
 
