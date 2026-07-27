@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Tracker V0.3</title>
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="dashboard">
+<aside class="sidebar">
+<div class="logo">
+<h1>ATLAS</h1>
+<span>Tracker</span>
+</div>
+<nav class="menu">
+<a class="active" href="#">
+<i class="fa-solid fa-chart-line"></i>
+<span>Dashboard</span>
+</a>
+<a href="#">
+<i class="fa-solid fa-users"></i>
+<span>Visitantes</span>
+</a>
+<a href="#">
+<i class="fa-solid fa-bullhorn"></i>
+<span>Marketing</span>
+</a>
+<a href="#">
+<i class="fa-solid fa-user-group"></i>
+<span>CRM</span>
+</a>
+<a href="#">
+<i class="fa-solid fa-gear"></i>
+<span>Configurações</span>
+</a>
+</nav>
+</aside>
+<div class="content">
+<header class="topbar">
+<div>
+<h1>Dashboard</h1>
+<p>Atlas Tracker V0.3</p>
+</div>
+<div class="top-actions">
+<button class="btn btn-outline">
+Atualizar
+</button>
+</div>
+</header>
+<main>
+<section class="cards-grid">
+<div class="card">
+<h3>Visitantes</h3>
+<strong id="totalVisitantes">0</strong>
+</div>
+<div class="card">
+<h3>Visitas</h3>
+<strong id="totalVisitas">0</strong>
+</div>
+<div class="card">
+<h3>Conversões</h3>
+<strong id="totalConversoes">0</strong>
+</div>
+</section>
+<section class="analytics-grid">
+<div class="widget large">
+<div class="widget-header">
+<div>
+<h2 class="widget-title">Visitas por Período</h2>
+<p class="widget-subtitle">Últimos 30 dias</p>
+</div>
+<div class="calendar-filter">
+<input type="date" id="dataInicial">
+<input type="date" id="dataFinal">
+<button class="btn btn-primary" id="btnFiltrar">Filtrar</button>
+</div>
+</div>
+<div class="chart-box">
+<canvas id="graficoVisitas"></canvas>
+</div>
+</div>
+<div class="widget">
+<div class="widget-header">
+<h2 class="widget-title">Resumo</h2>
+</div>
+<div class="kpi-list">
+<div class="kpi-item">
+<small>Novos Visitantes</small>
+<strong id="novosVisitantes">0</strong>
+</div>
+<div class="kpi-item">
+<small>Retornaram</small>
+<strong id="visitantesRetorno">0</strong>
+</div>
+<div class="kpi-item">
+<small>Conversões Hoje</small>
+<strong id="convHoje">0</strong>
+</div>
+<div class="kpi-item">
+<small>Campanhas</small>
+<strong id="totalCampanhas">0</strong>
+</div>
+</div>
+</div>
+<div class="widget full">
+<div class="panel-title">
+<h2>Painel de Campanhas</h2>
+<p>Campanhas com maior desempenho</p>
+</div>
+<div id="listaCampanhas" class="list">
+<div class="campaign-card">
+<div class="campaign-name">Carregando...</div>
+<div class="campaign-meta">
+<span>Origem</span>
+<span>0 visitantes</span>
+</div>
+<div class="progress mt-1">
+<div class="progress-bar" style="width:0%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="widget">
+<div class="panel-title">
+<h2>Origens</h2>
+</div>
+<div id="listaOrigens" class="source-list">
+<div class="source-item">
+<span>Carregando...</span>
+<div class="source-bar">
+<div class="source-fill" style="width:0%"></div>
+</div>
+<strong>0%</strong>
+</div>
+</div>
+</div>
+<div class="widget">
+<div class="panel-title">
+<h2>Navegadores</h2>
+</div>
+<div id="listaNavegadores" class="list"></div>
+</div>
+<div class="widget">
+<div class="panel-title">
+<h2>Dispositivos</h2>
+</div>
+<div id="listaDispositivos" class="list"></div>
+</div>
+</section>
+<section class="dashboard-grid">
+<div class="panel">
+<div class="panel-title">
+<h2>Últimas Visitas</h2>
+<p>Atualizado em tempo real</p>
+</div>
+<div class="table-responsive">
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Visitante</th>
+<th>Campanha</th>
+<th>Origem</th>
+<th>Navegador</th>
+<th>Dispositivo</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="tabelaUltimasVisitas">
+</tbody>
+</table>
+</div>
+<div class="pagination" id="paginacaoVisitas"></div>
+</div>
+<div class="panel">
+<div class="panel-title">
+<h2>Resumo Geral</h2>
+</div>
+<div class="stat-box">
+<h4>Visitantes Ativos</h4>
+<strong id="visitantesAtivos">0</strong>
+<small>Últimos 30 minutos</small>
+</div>
+<div class="stat-box">
+<h4>Conversão Média</h4>
+<strong id="mediaConversao">0%</strong>
+</div>
+<div class="stat-box">
+<h4>Melhor Campanha</h4>
+<strong id="melhorCampanha">--</strong>
+</div>
+</div>
+</section>
+<section class="dashboard-grid">
+<div class="panel">
+<div class="panel-title">
+<h2>Conversões</h2>
+<p>Últimos registros</p>
+</div>
+<div class="table-responsive">
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Visitante</th>
+<th>Tipo</th>
+<th>Origem</th>
+<th>Campanha</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="tabelaConversoes">
+</tbody>
+</table>
+</div>
+</div>
+<div class="panel">
+<div class="panel-title">
+<h2>Sistemas Operacionais</h2>
+</div>
+<div id="listaSistemas" class="list"></div>
+</div>
+</section>
+<section class="dashboard-grid">
+<div class="widget full">
+<div class="panel-title">
+<h2>Distribuição de Dispositivos</h2>
+<p>Desktop x Mobile x Tablet</p>
+</div>
+<div class="chart-box">
+<canvas id="graficoDispositivos"></canvas>
+</div>
+</div>
+</section>
+<section class="analytics-grid">
+<div class="widget full">
+<div class="widget-header">
+<div>
+<h2 class="widget-title">CRM de Leads</h2>
+<p class="widget-subtitle">Acompanhe a evolução dos pacientes</p>
+</div>
+<button class="btn btn-primary" id="novoLead">
+Novo Lead
+</button>
+</div>
+<div class="crm-stage">
+<div class="crm-column">
+<h3>■ Novo Lead</h3>
+<div id="crmNovos"></div>
+</div>
+<div class="crm-column">
+<h3>■ Em Atendimento</h3>
+<div id="crmAtendimento"></div>
+</div>
+<div class="crm-column">
+<h3>■ Avaliação Marcada</h3>
+<div id="crmAvaliacao"></div>
+</div>
+<div class="crm-column">
+<h3>■ Fechado</h3>
+<div id="crmFechados"></div>
+</div>
+</div>
+</div>
+</section>
+<section class="dashboard-grid">
+<div class="panel">
+<div class="panel-title">
+<h2>Timeline de Eventos</h2>
+</div>
+<div class="timeline" id="timelineEventos"></div>
+</div>
+<div class="panel">
+<div class="panel-title">
+<h2>Atividade Recente</h2>
+</div>
+<div class="list" id="atividadeRecente"></div>
+</div>
+</section>
+<div class="modal-overlay" id="modalLead">
+<div class="modal">
+<div class="modal-header">
+<h2>Novo Lead</h2>
+<button class="btn btn-outline" id="fecharModal">
+Fechar
+</button>
+</div>
+<div class="modal-body">
+<div class="form-group">
+<label>Nome</label>
+<input type="text" class="form-control" id="nomeLead">
+</div>
+<div class="form-group">
+<label>Telefone</label>
+<input type="text" class="form-control" id="telefoneLead">
+</div>
+<div class="form-group">
+<label>Observação</label>
+<textarea id="observacaoLead"></textarea>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-outline">
+Cancelar
+</button>
+<button class="btn btn-primary" id="salvarLead">
+Salvar
+</button>
+</div>
+</div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay is-hidden" id="loadingGlobal">
+<div class="loader"></div>
+</div>
+<footer class="mt-3">
+<div class="panel">
+<div class="flex-between">
+<div>
+<strong>Atlas Tracker</strong>
+<p class="text-muted">
+Dashboard V0.3 • Express + Supabase
+</p>
+</div>
+<div>
+<span class="badge badge-info">
+Sistema Online
+</span>
+</div>
+</div>
+</div>
+</footer>
+<template id="templateCampanha">
+<div class="campaign-card">
+<div class="campaign-name"></div>
+<div class="campaign-meta">
+<span class="origem"></span>
+<span class="visitantes"></span>
+</div>
+<div class="progress mt-1">
+<div class="progress-bar"></div>
+</div>
+</div>
+</template>
+<template id="templateOrigem">
+<div class="source-item">
+<span class="nome"></span>
+<div class="source-bar">
+<div class="source-fill"></div>
+</div>
+<strong class="percentual"></strong>
+</div>
+</template>
+<template id="templateLista">
+<div class="list-item">
+<span class="titulo"></span>
+<span class="badge badge-info valor"></span>
+</div>
+</template>
+<template id="templateTimeline">
+<div class="timeline-item">
+<h4 class="titulo"></h4>
+<p class="descricao"></p>
+</div>
+</template>
+<template id="templateCRM">
+<div class="crm-card">
+<strong class="nome"></strong>
+<small class="telefone"></small>
+<div class="mt-1">
+<span class="badge badge-success status"></span>
+</div>
+</div>
+</template>
+<template id="templateToast">
+<div class="toast success">
+<strong class="titulo"></strong>
+<p class="mensagem mt-1"></p>
+</div>
+</template>
+<script>
+window.ATLAS={
+api:"/dashboard",
+versao:"0.3",
+tema:"dark"
+};
+</script>
+<script src="dashboard.js"></script>
+</main>
+</div>
+</div>
+</body>
+</html>

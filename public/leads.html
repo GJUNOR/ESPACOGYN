@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Atlas CRM</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- ========================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div>
+
+            <div class="logo">
+
+                <div class="logo-icon">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                </div>
+
+                <div class="logo-text">
+
+                    <h2>Atlas CRM</h2>
+
+                    <span>Espaço da Coluna</span>
+
+                </div>
+
+            </div>
+
+            <nav class="menu">
+
+                <a href="#">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+                <a href="#" class="active">
+
+                    <i class="fa-solid fa-user-group"></i>
+
+                    <span>Pacientes</span>
+
+                </a>
+
+                <a href="#">
+
+                    <i class="fa-solid fa-calendar-days"></i>
+
+                    <span>Agenda</span>
+
+                </a>
+
+                <a href="#">
+
+                    <i class="fa-solid fa-chart-pie"></i>
+
+                    <span>Resultados</span>
+
+                </a>
+
+                <a href="#">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    <span>Configurações</span>
+
+                </a>
+
+            </nav>
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <div class="connection-status">
+
+                <div class="status-dot"></div>
+
+                <div>
+
+                    <strong>Sistema Online</strong>
+
+                    <small>Supabase conectado</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="content">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+
+                    Central de Leads
+
+                </h1>
+
+                <p>
+
+                    Gerencie pacientes e acompanhe resultados das campanhas.
+
+                </p>
+
+            </div>
+
+            <div class="topbar-actions">
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        id="pesquisa"
+                        type="text"
+                        placeholder="Pesquisar paciente...">
+
+                </div>
+
+                <button
+                    id="btnAtualizar"
+                    class="secondary-button">
+
+                    <i class="fa-solid fa-rotate"></i>
+
+                    Atualizar
+
+                </button>
+
+                <button
+                    id="btnExportar"
+                    class="primary-button">
+
+                    <i class="fa-solid fa-file-export"></i>
+
+                    Exportar
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- CARDS -->
+
+        <section class="cards">
+
+            <div class="card">
+
+                <div>
+
+                    <span>Total de Leads</span>
+
+                    <h2 id="totalLeads">0</h2>
+
+                </div>
+
+                <i class="fa-solid fa-users"></i>
+
+            </div>
+
+            <div class="card">
+
+                <div>
+
+                    <span>Agendados</span>
+
+                    <h2 id="agendados">0</h2>
+
+                </div>
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+            </div>
+
+            <div class="card">
+
+                <div>
+
+                    <span>Convertidos</span>
+
+                    <h2 id="compareceram">0</h2>
+
+                </div>
+
+                <i class="fa-solid fa-circle-check"></i>
+
+            </div>
+
+            <div class="card">
+
+                <div>
+
+                    <span>Receita</span>
+
+                    <h2 id="receitaTotal">R$ 0,00</h2>
+
+                </div>
+
+                <i class="fa-solid fa-sack-dollar"></i>
+
+            </div>
+
+        </section>
+
+        <!-- TABELA -->
+
+        <section class="table-card">
+
+            <div class="table-header">
+
+                <h2>
+
+                    Pacientes
+
+                </h2>
+
+                <span id="contadorPacientes">
+
+                    0 registros
+
+                </span>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Paciente</th>
+
+                            <th>Telefone</th>
+
+                            <th>Campanha</th>
+
+                            <th>Status</th>
+
+                            <th>Receita</th>
+
+                            <th>Cadastro</th>
+
+                            <th></th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tabelaPacientes">
+
+                        <tr>
+
+                            <td colspan="7" class="loading">
+
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                                Carregando pacientes...
+
+                            </td>
+
+                        </tr>
+                                            </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ========================================= -->
+<!-- DRAWER DO PACIENTE -->
+<!-- ========================================= -->
+
+<aside id="patientDrawer" class="patient-drawer">
+
+    <div class="drawer-header">
+
+        <div>
+
+            <h2 id="drawerNome">
+
+                Nome do Paciente
+
+            </h2>
+
+            <small id="drawerCodigoLead">
+
+                Lead #0000
+
+            </small>
+
+        </div>
+
+        <button
+            class="drawer-close"
+            onclick="fecharDrawer()">
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+    </div>
+
+    <div class="drawer-body">
+
+        <!-- ========================= -->
+        <!-- Informações -->
+        <!-- ========================= -->
+
+        <div class="drawer-section">
+
+            <h3>
+
+                <i class="fa-solid fa-user"></i>
+
+                Informações
+
+            </h3>
+
+            <div class="info-grid">
+
+                <div>
+
+                    <span>Telefone</span>
+
+                    <strong id="drawerTelefone">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Cadastro</span>
+
+                    <strong id="drawerCadastro">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Origem</span>
+
+                    <strong id="drawerOrigem">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Status</span>
+
+                    <strong id="drawerStatus">-</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- Marketing -->
+        <!-- ========================= -->
+
+        <div class="drawer-section">
+
+            <h3>
+
+                <i class="fa-solid fa-bullhorn"></i>
+
+                Marketing
+
+            </h3>
+
+            <div class="info-grid">
+
+                <div>
+
+                    <span>Campanha</span>
+
+                    <strong id="drawerCampanha">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Conjunto</span>
+
+                    <strong id="drawerConjunto">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Anúncio</span>
+
+                    <strong id="drawerAnuncio">-</strong>
+
+                </div>
+
+                <div>
+
+                    <span>Origem</span>
+
+                    <strong id="drawerOrigemMarketing">-</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- Resultado -->
+        <!-- ========================= -->
+
+        <div class="drawer-section">
+
+            <h3>
+
+                <i class="fa-solid fa-sack-dollar"></i>
+
+                Resultado
+
+            </h3>
+
+            <div class="form-group">
+
+                <label>
+
+                    Valor da Conversão
+
+                </label>
+
+                <input
+                    id="valorConversao"
+                    type="number"
+                    placeholder="0,00">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+
+                    Status Financeiro
+
+                </label>
+
+                <select id="statusFinanceiro">
+
+                    <option>Não converteu</option>
+                    <option>Converteu</option>
+
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+
+                    Observações
+
+                </label>
+
+                <textarea
+                    id="observacoes"
+                    rows="4"
+                    placeholder="Digite alguma observação..."></textarea>
+
+            </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- Botão Dados Técnicos -->
+        <!-- ========================= -->
+
+        <div class="drawer-section">
+
+            <button
+                class="technical-button"
+                onclick="abrirTecnico()">
+
+                <i class="fa-solid fa-code"></i>
+
+                Dados Técnicos
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Rodapé -->
+
+    <div class="drawer-footer">
+
+        <button
+            class="cancel-button"
+            onclick="fecharDrawer()">
+
+            Cancelar
+
+        </button>
+
+        <button
+            id="btnSalvarDrawer"
+            class="save-button">
+
+            <i class="fa-solid fa-floppy-disk"></i>
+
+            Salvar
+
+        </button>
+
+    </div>
+
+</aside>
+<!-- ========================================= -->
+<!-- PAINEL TÉCNICO -->
+<!-- ========================================= -->
+
+<div id="technicalPanel" class="technical-panel">
+
+    <div class="technical-content">
+
+        <div class="technical-header">
+
+            <h2>
+
+                Dados Técnicos
+
+            </h2>
+
+            <button onclick="fecharTecnico()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+        <div class="technical-body">
+
+            <div class="tech-item">
+
+                <span>UTM Source</span>
+
+                <strong id="utm_source">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>UTM Medium</span>
+
+                <strong id="utm_medium">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>UTM Campaign</span>
+
+                <strong id="utm_campaign">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>UTM Content</span>
+
+                <strong id="utm_content">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>UTM Term</span>
+
+                <strong id="utm_term">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>FBCLID</span>
+
+                <strong id="fbclid">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>FBP</span>
+
+                <strong id="fbp">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>FBC</span>
+
+                <strong id="fbc">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>IP</span>
+
+                <strong id="ip">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>User Agent</span>
+
+                <strong id="useragent">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>Landing Page</span>
+
+                <strong id="landing_page">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>Referer</span>
+
+                <strong id="referer">-</strong>
+
+            </div>
+
+            <div class="tech-item">
+
+                <span>Dispositivo</span>
+
+                <strong id="device">-</strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Overlay -->
+
+<div id="overlay" class="overlay"></div>
+
+<!-- Campo oculto -->
+
+<input
+    type="hidden"
+    id="pacienteId">
+
+<!-- ========================================= -->
+<!-- SCRIPTS -->
+<!-- ========================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="leads.js"></script>
+
+<script>
+
+function abrirDrawer(){
+
+    document
+        .getElementById("patientDrawer")
+        .classList.add("open");
+
+    document
+        .getElementById("overlay")
+        .classList.add("show");
+
+}
+
+function fecharDrawer(){
+
+    document
+        .getElementById("patientDrawer")
+        .classList.remove("open");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+
+    fecharTecnico();
+
+}
+
+function abrirTecnico(){
+
+    document
+        .getElementById("technicalPanel")
+        .classList.add("show");
+
+}
+
+function fecharTecnico(){
+
+    document
+        .getElementById("technicalPanel")
+        .classList.remove("show");
+
+}
+
+document
+    .getElementById("overlay")
+    .addEventListener("click", fecharDrawer);
+
+const btnSalvar = document.getElementById("btnSalvarDrawer");
+
+if(btnSalvar){
+
+    btnSalvar.addEventListener("click", ()=>{
+
+        if(typeof salvarPaciente === "function"){
+
+            salvarPaciente();
+
+        }
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>

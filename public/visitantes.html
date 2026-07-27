@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Tracker - Visitantes</title>
+<link rel="stylesheet" href="visitantes.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+<div class="dashboard">
+<aside class="sidebar">
+<div class="logo">
+<h1>ATLAS</h1>
+<span>Tracker</span>
+</div>
+<nav class="menu">
+<a href="/dashboard">
+<i class="fa-solid fa-chart-line"></i>
+Dashboard
+</a>
+<a class="active" href="/visitantes">
+<i class="fa-solid fa-users"></i>
+Visitantes
+</a>
+<a href="#">
+<i class="fa-solid fa-bullhorn"></i>
+Marketing
+</a>
+<a href="#">
+<i class="fa-solid fa-user-group"></i>
+CRM
+</a>
+</nav>
+</aside>
+<div class="content">
+<header class="topbar">
+<div>
+<h1>Visitantes</h1>
+<p>Usuários identificados pelo Atlas Tracker</p>
+</div>
+<button class="btn btn-primary" id="atualizarVisitantes">
+Atualizar
+</button>
+</header>
+<main>
+<section class="cards-grid">
+<div class="card">
+<h3>Total Visitantes</h3>
+<strong id="totalVisitantes">0</strong>
+</div>
+<div class="card">
+<h3>Novos Visitantes</h3>
+<strong id="novosVisitantes">0</strong>
+</div>
+<div class="card">
+<h3>Retornantes</h3>
+<strong id="visitantesRetorno">0</strong>
+</div>
+<div class="card">
+<h3>Média de Visitas</h3>
+<strong id="mediaVisitas">0</strong>
+</div>
+</section>
+<!-- CONTINUA NA PARTE 2 -->
+</main>
+</div>
+</div>
+</body>
+</html>
+<section class="panel">
+<div class="panel-header">
+<div>
+<h2>Lista de Visitantes</h2>
+<p>
+Visitantes identificados pelo sistema
+</p>
+</div>
+<div class="filters">
+<input
+type="text"
+id="buscarVisitante"
+placeholder="Buscar visitante..."
+>
+<select id="filtroOrigem">
+<option value="">
+Todas as origens
+</option>
+<option value="facebook">
+Facebook
+</option>
+<option value="google">
+Google
+</option>
+<option value="Direto">
+Direto
+</option>
+</select>
+<select id="filtroDispositivo">
+<option value="">
+Todos dispositivos
+</option>
+<option value="Desktop">
+Desktop
+</option>
+<option value="Mobile">
+Mobile
+</option>
+</select>
+</div>
+</div>
+<div class="table-responsive">
+<table>
+<thead>
+<tr>
+<th>Visitante</th>
+<th>Primeira visita</th>
+<th>Última visita</th>
+<th>Visitas</th>
+<th>Origem</th>
+<th>Campanha</th>
+<th>Dispositivo</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="tabelaVisitantes">
+</tbody>
+</table>
+</div>
+</section>
+<div
+class="modal-overlay is-hidden"
+id="modalVisitante"
+>
+<div class="modal">
+<div class="modal-header">
+<h2>
+Detalhes do Visitante
+</h2>
+<button
+id="fecharModal"
+class="btn btn-outline"
+>
+Fechar
+</button>
+</div>
+<div
+class="modal-body"
+id="dadosVisitante"
+>
+</div>
+</div>
+</div>
+<template id="templateVisitante">
+<tr>
+<td class="visitante-id"></td>
+<td class="primeira-visita"></td>
+<td class="ultima-visita"></td>
+<td class="total-visitas"></td>
+<td class="origem"></td>
+<td class="campanha"></td>
+<td class="dispositivo"></td>
+<td>
+<button
+class="btn btn-primary btn-detalhes"
+>
+Ver
+</button>
+</td>
+</tr>
+</template>
+<footer>
+<div class="panel footer-panel">
+<strong>
+Atlas Tracker
+</strong>
+<p>
+Módulo Visitantes • Express + Supabase
+</p>
+</div>
+</footer>
+<script>
+window.ATLAS = {
+ api:"/api/visitantes",
+ versao:"0.3",
+ modulo:"visitantes"
+};
+</script>
+<script src="visitantes.js"></script>
+</body>
+</html>
