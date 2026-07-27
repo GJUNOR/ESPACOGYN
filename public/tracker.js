@@ -1,26 +1,28 @@
 function obterCookie(nome) {
 
-  const cookies = document.cookie.split(";");
+    const cookies = document.cookie.split(";");
 
 
-  for (const cookie of cookies) {
+    for (const cookie of cookies) {
 
-    const [chave, valor] =
-    cookie.trim().split("=");
+        const [chave, valor] =
+        cookie.trim().split("=");
 
 
-    if (chave === nome) {
+        if (chave === nome) {
 
-      return valor;
+            return valor;
+
+        }
 
     }
 
-  }
 
-
-  return null;
+    return null;
 
 }
+
+
 
 
 
@@ -45,8 +47,8 @@ localStorage.getItem("sessao_id");
 
 
 
-if(!sessaoId){
 
+if(!sessaoId){
 
     sessaoId =
     crypto.randomUUID();
@@ -57,13 +59,11 @@ if(!sessaoId){
         sessaoId
     );
 
-
 }
 
 
 
 if(!visitanteId){
-
 
     visitanteId =
     crypto.randomUUID();
@@ -74,16 +74,14 @@ if(!visitanteId){
         visitanteId
     );
 
-
 }
 
 
 
 
 
-
 // ===============================
-// PARAMETROS DA URL
+// PARAMETROS URL
 // ===============================
 
 
@@ -91,7 +89,6 @@ const params =
 new URLSearchParams(
     window.location.search
 );
-
 
 
 
@@ -106,107 +103,122 @@ new URLSearchParams(
 const visita = {
 
 
-  visitante_id:
-  visitanteId,
+    visitante_id:
+    visitanteId,
 
 
-  sessao_id:
-  sessaoId,
-
-fbclid:
-params.get("fbclid"),
+    sessao_id:
+    sessaoId,
 
 
-fbp:
-obterCookie("_fbp"),
-
-
-fbc:
-obterCookie("_fbc") ||
-(
-    params.get("fbclid")
-    ?
-    "fb.1." +
-    Date.now() +
-    "." +
-    params.get("fbclid")
-    :
-    null
-),
-
-  utm_source:
-  params.get("utm_source"),
-
-
-  utm_medium:
-  params.get("utm_medium"),
-
-
-  utm_campaign:
-  params.get("utm_campaign"),
-
-
-  utm_content:
-  params.get("utm_content"),
-
-
-  utm_term:
-  params.get("utm_term"),
+    fbclid:
+    params.get("fbclid"),
 
 
 
-  url:
-  window.location.href,
+    fbp:
+    obterCookie("_fbp"),
 
 
 
-  user_agent:
-  navigator.userAgent,
+    fbc:
+
+    obterCookie("_fbc") ||
+
+    (
+        params.get("fbclid")
+        ?
+
+        "fb.1." +
+        Date.now() +
+        "." +
+        params.get("fbclid")
+
+        :
+
+        null
+    ),
 
 
 
-  idioma:
-  navigator.language,
+    utm_source:
+    params.get("utm_source"),
 
 
 
-  screen_width:
-  window.screen.width,
+    utm_medium:
+    params.get("utm_medium"),
 
 
 
-  screen_height:
-  window.screen.height,
+    utm_campaign:
+    params.get("utm_campaign"),
 
 
 
-  timezone:
-  Intl.DateTimeFormat()
-  .resolvedOptions()
-  .timeZone,
+    utm_content:
+    params.get("utm_content"),
 
 
 
-  platform:
-  navigator.platform,
+    utm_term:
+    params.get("utm_term"),
 
 
 
-  referrer:
-  document.referrer,
+    url:
+    window.location.href,
 
 
 
-  timestamp_cliente:
-  new Date().toISOString(),
+    user_agent:
+    navigator.userAgent,
 
 
 
-  status:
-  "novo"
+    idioma:
+    navigator.language,
+
+
+
+    screen_width:
+    window.screen.width,
+
+
+
+    screen_height:
+    window.screen.height,
+
+
+
+    timezone:
+    Intl.DateTimeFormat()
+    .resolvedOptions()
+    .timeZone,
+
+
+
+    platform:
+    navigator.platform,
+
+
+
+    referrer:
+    document.referrer,
+
+
+
+    timestamp_cliente:
+    new Date().toISOString(),
+
+
+
+    status:
+    "novo"
 
 
 };
+
 
 
 
@@ -218,25 +230,24 @@ obterCookie("_fbc") ||
 // ===============================
 
 
-
 fetch("/tracker", {
 
 
-  method:"POST",
+    method:"POST",
 
 
-  headers:{
+    headers:{
 
 
-    "Content-Type":
-    "application/json"
+        "Content-Type":
+        "application/json"
 
 
-  },
+    },
 
 
-  body:
-  JSON.stringify(visita)
+    body:
+    JSON.stringify(visita)
 
 
 
@@ -274,37 +285,69 @@ fetch("/tracker", {
     );
 
 
-console.log("WhatsApp:", whatsapp);
 
-const modoTeste = window.location.search.includes("teste");
+    const whatsapp =
 
-console.log("Modo teste:", modoTeste);
+    dados.whatsapp ||
+
+    WHATSAPP_URL;
 
 
-if (modoTeste) {
+
+
+    const modoTeste =
+
+    window.location.search.includes("teste");
+
+
 
     console.log(
-        "🚧 TESTE - WhatsApp bloqueado:",
-        whatsapp
+        "Modo teste:",
+        modoTeste
     );
 
-} else {
 
-    window.location.href = whatsapp;
 
-}
+
+
+    if(modoTeste){
+
+
+        console.log(
+            "🚧 TESTE - WhatsApp bloqueado:",
+            whatsapp
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    window.location.href =
+    whatsapp;
+
+
+
+})
+
 
 
 .catch((erro)=>{
 
 
     console.error(
+        "Erro tracker:",
         erro
     );
 
 
-    window.location.href =
-    WHATSAPP_URL;
+    console.log(
+        "Nenhum redirecionamento executado por segurança"
+    );
 
 
 });

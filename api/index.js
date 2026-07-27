@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
+
 require("dotenv").config();
 
 const app = express();
@@ -13,11 +15,39 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use(express.static("public"));
+
+// =======================
+// PUBLIC
+// =======================
+
+app.use(
+    express.static(
+        path.join(__dirname, "../public")
+    )
+);
+
 
 
 // =======================
-// ROTAS
+// ROTA PRINCIPAL
+// =======================
+
+app.get("/", (req, res) => {
+
+    res.sendFile(
+        path.join(
+            __dirname,
+            "../public/index.html"
+        )
+    );
+
+});
+
+
+
+
+// =======================
+// ROTAS ATLAS
 // =======================
 
 const tracker =
@@ -36,10 +66,6 @@ const eventos =
 require("../routes/eventos");
 
 
-// =======================
-// ATIVAÇÃO DAS ROTAS
-// =======================
-
 app.use("/", tracker);
 
 app.use("/", dashboard);
@@ -51,8 +77,9 @@ app.use("/api/conversoes", conversoes);
 app.use("/api/eventos", eventos);
 
 
+
 // =======================
-// EXPORTAÇÃO VERCEL
+// EXPORT VERCEL
 // =======================
 
 module.exports = app;
