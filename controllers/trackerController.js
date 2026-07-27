@@ -7,6 +7,7 @@ const WHATSAPP_URL =
 
 
 
+
 // ==========================================
 // REGISTRAR VISITA
 // ==========================================
@@ -30,11 +31,15 @@ async function registrarVisita(req, res) {
 
         return res.json({
 
+
             sucesso: true,
+
 
             whatsapp: WHATSAPP_URL,
 
+
             dados: resultado
+
 
         });
 
@@ -43,24 +48,22 @@ async function registrarVisita(req, res) {
     } catch(err) {
 
 
-       console.error(
-    "ERRO COMPLETO TRACKER:",
-    JSON.stringify(
-        erro,
-        null,
-        2
-    )
-);
-
+        console.error(
+            "ERRO COMPLETO TRACKER:",
+            err
+        );
 
 
         return res.status(500).json({
 
 
-            sucesso: false,
+            sucesso:false,
 
 
-            erro: err.message
+            erro: err.message,
+
+
+            stack: err.stack
 
 
         });
@@ -73,8 +76,12 @@ async function registrarVisita(req, res) {
 
 
 
+
+
 module.exports = {
 
+
     registrarVisita
+
 
 };
