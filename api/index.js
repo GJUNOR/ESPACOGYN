@@ -34,12 +34,17 @@ app.use(
 
 app.get("/", (req, res) => {
 
-    res.sendFile(
-        path.join(
-            __dirname,
-            "../public/index.html"
-        )
-    );
+    res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Atlas Tracker</title>
+        </head>
+        <body>
+            <h1>🚀 Atlas Tracker funcionando no Vercel</h1>
+        </body>
+        </html>
+    `);
 
 });
 
