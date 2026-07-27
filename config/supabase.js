@@ -1,6 +1,7 @@
 require("dotenv").config();
 
-console.log("URL SUPABASE LIDA:", process.env.SUPABASE_URL);
+console.log("ENV SUPABASE_URL:", process.env.SUPABASE_URL);
+console.log("ENV SUPABASE_KEY EXISTE:", !!process.env.SUPABASE_KEY);
 
 const { createClient } = require("@supabase/supabase-js");
 
