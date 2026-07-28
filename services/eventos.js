@@ -168,18 +168,49 @@ async function buscarEventosVisitante(
 
 }
 
+// ==========================================
+// MARCAR EVENTO COMO ENVIADO PARA META
+// ==========================================
+async function marcarComoEnviadoMeta(eventoId) {
 
+    const { data, error } = await supabase
+        .from("eventos")
+        .update({
+
+            enviado_meta: true,
+
+            data_envio_meta: new Date()
+
+        })
+        .eq(
+            "id",
+            eventoId
+        )
+        .select()
+        .single();
+
+
+    if(error){
+
+        throw error;
+
+    }
+
+
+    return data;
+
+}
 
 
 
 module.exports = {
 
-
     criarEvento,
 
     listarEventos,
 
-    buscarEventosVisitante
+    buscarEventosVisitante,
 
+    marcarComoEnviadoMeta
 
 };

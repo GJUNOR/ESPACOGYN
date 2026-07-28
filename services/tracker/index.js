@@ -20,6 +20,11 @@ const eventosService =
 require("../eventos");
 
 
+const metaService =
+require("../meta/conversions");
+
+
+
 const {
     montarVisitante,
     montarVisita,
@@ -105,9 +110,7 @@ async function registrar(req) {
             "Visitante atualizado"
         );
 
-
     }
-
 
 
 
@@ -126,10 +129,10 @@ async function registrar(req) {
 
 
 
-   const visitaCriada =
-    await visitasService.salvarVisita(
-        novaVisita
-    );
+    const visitaCriada =
+        await visitasService.salvarVisita(
+            novaVisita
+        );
 
 
 
@@ -148,48 +151,64 @@ async function registrar(req) {
     // CRIA CONVERSÃO WHATSAPP
     // ===============================
 
+
     const conversao =
     await conversoesService.registrarConversao({
-        
-        visitante_id: visitaRecebida.visitante_id,
 
-        visita_id: visitaCriada.id,
+        visitante_id:
+        visitaRecebida.visitante_id,
 
-        sessao_id: visitaRecebida.sessao_id,
+        visita_id:
+        visitaCriada.id,
 
-        tipo: "whatsapp",
+        sessao_id:
+        visitaRecebida.sessao_id,
 
-        valor: 0,
+        tipo:
+        "whatsapp",
 
-        status: "novo",
+        valor:
+        0,
 
-        origem: visitaRecebida.utm_source || "direto",
+        status:
+        "novo",
 
-        observacao: "Cliente enviado para WhatsApp",
+        origem:
+        visitaRecebida.utm_source || "direto",
 
-        utm_source: visitaRecebida.utm_source,
+        observacao:
+        "Cliente enviado para WhatsApp",
 
-        utm_medium: visitaRecebida.utm_medium,
+        utm_source:
+        visitaRecebida.utm_source,
 
-        utm_campaign: visitaRecebida.utm_campaign
+        utm_medium:
+        visitaRecebida.utm_medium,
+
+        utm_campaign:
+        visitaRecebida.utm_campaign
 
     });
 
-if(conversao.nova){
 
-    console.log(
-        "Conversão criada:",
-        conversao.id
-    );
 
-}else{
+    if(conversao.nova){
 
-    console.log(
-        "💬 Conversão já existente:",
-        conversao.id
-    );
+        console.log(
+            "Conversão criada:",
+            conversao.id
+        );
 
-}
+    }else{
+
+        console.log(
+            "💬 Conversão já existente:",
+            conversao.id
+        );
+
+    }
+
+
 
 
 
@@ -199,7 +218,8 @@ if(conversao.nova){
     // CRIA EVENTO
     // ===============================
 
-const evento =
+
+    const evento =
     montarEvento(
         visitaRecebida,
         conversao.id,
@@ -208,28 +228,104 @@ const evento =
 
 
 
-const resultadoEvento =
+
+    const resultadoEvento =
     await eventosService.criarEvento(
         evento
     );
 
 
 
-if(resultadoEvento.novo){
+    if(resultadoEvento.novo){
 
-    console.log(
-        "Evento criado:",
-        resultadoEvento.id
-    );
+        console.log(
+            "Evento criado:",
+            resultadoEvento.id
+        );
 
-}else{
+    }else{
 
-    console.log(
-        "📌 Evento já existente:",
-        resultadoEvento.id
-    );
+        console.log(
+            "📌 Evento já existente:",
+            resultadoEvento.id
+        );
 
-}
+    }
+
+
+
+
+
+
+
+    // ===============================
+    // ENVIA PARA META CAPI
+    // ===============================
+
+
+    try {
+
+
+        const retornoMeta =
+        await metaService.enviarEventoMeta({
+
+            event_id:
+            evento.event_id,
+
+
+            fbp:
+            visitaRecebida.fbp,
+
+
+            fbc:
+            visitaRecebida.fbc,
+
+
+            user_agent:
+            visitaRecebida.user_agent,
+
+
+            url:
+            visitaRecebida.url,
+
+
+            ip:
+            req.ip
+
+        });
+
+
+
+        console.log(
+            "🚀 Meta respondeu:",
+            retornoMeta
+        );
+
+
+
+        await eventosService.marcarComoEnviadoMeta(
+            resultadoEvento.id
+        );
+
+
+
+        console.log(
+            "✅ Evento marcado como enviado para Meta"
+        );
+
+
+
+    } catch(erro){
+
+
+        console.error(
+            "❌ Erro Meta CAPI:",
+            erro.message
+        );
+
+
+    }
+
 
 
 
@@ -249,9 +345,13 @@ if(resultadoEvento.novo){
         conversao,
 
 
+        evento:
+        resultadoEvento,
+
+
+
         whatsapp:
         "https://wa.me/5562992301358?text=Olá,%20vim%20pelo%20anúncio."
-
 
     };
 
