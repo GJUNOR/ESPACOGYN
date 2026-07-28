@@ -359,10 +359,6 @@ async function registrar(req) {
 }
 
 
-
-
-
 module.exports = {
-
-
     registrar
+};
