@@ -366,6 +366,3 @@ module.exports = {
 
 
     registrar
-
-
-};git
