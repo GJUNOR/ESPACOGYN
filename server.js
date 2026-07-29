@@ -1,15 +1,13 @@
 require("dotenv").config();
 
-
 const express = require("express");
 const cors = require("cors");
-
+const path = require("path");
 
 const app = express();
 
 const PORT =
     process.env.PORT || 3000;
-
 
 
 // =======================
@@ -20,9 +18,11 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use(express.static("public"));
-
-
+app.use(
+    express.static(
+        path.join(__dirname, "public")
+    )
+);
 
 
 // =======================
@@ -35,16 +35,14 @@ const tracker =
 const dashboard =
     require("./routes/dashboard");
 
-const visitantes =
-    require("./routes/visitantes");
+const leads =
+    require("./routes/leads");
 
 const conversoes =
     require("./routes/conversoes");
 
 const eventos =
     require("./routes/eventos");
-
-
 
 
 // =======================
@@ -55,13 +53,11 @@ app.use("/", tracker);
 
 app.use("/", dashboard);
 
-app.use("/", visitantes);
+app.use("/", leads);
 
 app.use("/api/conversoes", conversoes);
 
 app.use("/api/eventos", eventos);
-
-
 
 
 // =======================
@@ -69,7 +65,6 @@ app.use("/api/eventos", eventos);
 // =======================
 
 app.listen(PORT, () => {
-
 
     console.log("======================================");
 
@@ -80,6 +75,5 @@ app.listen(PORT, () => {
     );
 
     console.log("======================================");
-
 
 });

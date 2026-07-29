@@ -5,6 +5,8 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
+const leads =
+require("../routes/leads");
 
 
 // =======================
@@ -15,6 +17,7 @@ app.use(cors());
 
 app.use(express.json());
 
+app.use("/", leads);
 
 // =======================
 // PUBLIC
@@ -61,8 +64,8 @@ require("../routes/tracker");
 const dashboard =
 require("../routes/dashboard");
 
-const visitantes =
-require("../routes/visitantes");
+const leads =
+require("../routes/leads");
 
 const conversoes =
 require("../routes/conversoes");
@@ -75,7 +78,7 @@ app.use("/", tracker);
 
 app.use("/", dashboard);
 
-app.use("/", visitantes);
+app.use("/", leads);
 
 app.use("/api/conversoes", conversoes);
 

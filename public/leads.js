@@ -1,197 +1,14 @@
 "use strict";
 
 // ======================================================
-// ATLAS TRACKER
-// CENTRAL DE PACIENTES
-// LEADS.JS V4
+// ATLAS CRM — LEADS / PACIENTES
 // ======================================================
 
-// URL relativa: funciona no localhost e na Vercel.
-const API = "";
-
-
-// ======================================================
-// ELEMENTOS PRINCIPAIS
-// ======================================================
-
-const tabela =
-    document.getElementById("tabelaPacientes");
-
-const contadorPacientes =
-    document.getElementById("contadorPacientes");
-
-const pesquisa =
-    document.getElementById("pesquisa");
-
-const filtrosStatus =
-    document.getElementById("filtrosStatus");
-
-
-// ======================================================
-// CARDS PRINCIPAIS
-// ======================================================
-
-const novosHoje =
-    document.getElementById("novosHoje");
-
-const emAtendimento =
-    document.getElementById("emAtendimento");
-
-const agendados =
-    document.getElementById("agendados");
-
-const convertidos =
-    document.getElementById("convertidos");
-
-
-// ======================================================
-// RESUMO OPERACIONAL
-// ======================================================
-
-const aguardandoRetorno =
-    document.getElementById("aguardandoRetorno");
-
-const contatoHoje =
-    document.getElementById("contatoHoje");
-
-const avaliacoesHoje =
-    document.getElementById("avaliacoesHoje");
-
-const receitaHoje =
-    document.getElementById("receitaHoje");
-
-
-// ======================================================
-// BOTÕES
-// ======================================================
-
-const btnAtualizar =
-    document.getElementById("btnAtualizar");
-
-const btnExportar =
-    document.getElementById("btnExportar");
-
-const btnNovoPaciente =
-    document.getElementById("btnNovoPaciente");
-
-const btnSalvarDrawer =
-    document.getElementById("btnSalvarDrawer");
-
-
-// ======================================================
-// DRAWER
-// ======================================================
-
-const patientDrawer =
-    document.getElementById("patientDrawer");
-
-const drawerNome =
-    document.getElementById("drawerNome");
-
-const drawerLead =
-    document.getElementById("drawerCodigoLead");
-
-const drawerTelefone =
-    document.getElementById("drawerTelefone");
-
-const drawerCadastro =
-    document.getElementById("drawerCadastro");
-
-const drawerOrigem =
-    document.getElementById("drawerOrigem");
-
-const drawerStatus =
-    document.getElementById("drawerStatus");
-
-
-// ======================================================
-// DRAWER — MARKETING
-// ======================================================
-
-const drawerCampanha =
-    document.getElementById("drawerCampanha");
-
-const drawerConjunto =
-    document.getElementById("drawerConjunto");
-
-const drawerAnuncio =
-    document.getElementById("drawerAnuncio");
-
-const drawerOrigemMarketing =
-    document.getElementById("drawerOrigemMarketing");
-
-
-// ======================================================
-// DRAWER — RESULTADO
-// ======================================================
-
-const valorConversao =
-    document.getElementById("valorConversao");
-
-const statusFinanceiro =
-    document.getElementById("statusFinanceiro");
-
-const observacoes =
-    document.getElementById("observacoes");
-
-
-// ======================================================
-// DRAWER — DADOS TÉCNICOS
-// ======================================================
-
-const campoUtmSource =
-    document.getElementById("utm_source");
-
-const campoUtmMedium =
-    document.getElementById("utm_medium");
-
-const campoUtmCampaign =
-    document.getElementById("utm_campaign");
-
-const campoUtmContent =
-    document.getElementById("utm_content");
-
-const campoUtmTerm =
-    document.getElementById("utm_term");
-
-const campoFbclid =
-    document.getElementById("fbclid");
-
-const campoFbp =
-    document.getElementById("fbp");
-
-const campoFbc =
-    document.getElementById("fbc");
-
-const campoIp =
-    document.getElementById("ip");
-
-const campoUserAgent =
-    document.getElementById("useragent");
-
-const campoLandingPage =
-    document.getElementById("landing_page");
-
-const campoReferer =
-    document.getElementById("referer");
-
-const campoDevice =
-    document.getElementById("device");
-
-
-// ======================================================
-// ESTADO DA PÁGINA
-// ======================================================
-
-let pacientes = [];
-
-let listaExibida = [];
-
-let pacienteAtual = null;
-
-let filtroAtual = "todos";
-
-let carregando = false;
+const API_LEADS = "/api/leads";
+
+let todosOsLeads = [];
+let leadsFiltrados = [];
+let leadSelecionado = null;
 
 
 // ======================================================
@@ -199,2086 +16,1319 @@ let carregando = false;
 // ======================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("Atlas CRM: leads.js carregado.");
 
     configurarEventos();
-
-    carregarPacientes();
-
+    carregarLeads();
 });
 
 
 // ======================================================
-// EVENTOS
+// SELETORES COM ALTERNATIVAS
+// ======================================================
+
+function encontrarElemento(...seletores) {
+    for (const seletor of seletores) {
+        const elemento = document.querySelector(seletor);
+
+        if (elemento) {
+            return elemento;
+        }
+    }
+
+    return null;
+}
+
+
+function obterCorpoTabela() {
+    return encontrarElemento(
+        "#tabelaPacientes tbody",
+        "#tabelaLeads tbody",
+        "#pacientesTable tbody",
+        "#leadsTable tbody",
+        "#corpoTabela",
+        "#listaPacientes",
+        "#listaLeads",
+        "table tbody"
+    );
+}
+
+
+function obterCampoBusca() {
+    return encontrarElemento(
+        "#pesquisa",
+        "#busca",
+        "#campoBusca",
+        "#searchInput",
+        "#inputBusca",
+        "input[type='search']"
+    );
+}
+
+
+// ======================================================
+// CARREGAMENTO DA API
+// ======================================================
+
+async function carregarLeads() {
+    mostrarCarregamento();
+
+    try {
+        const resposta = await fetch(API_LEADS, {
+            method: "GET",
+            headers: {
+                Accept: "application/json"
+            }
+        });
+
+        if (!resposta.ok) {
+            const mensagem = await lerMensagemDeErro(resposta);
+
+            throw new Error(
+                mensagem ||
+                `Erro HTTP ${resposta.status} ao carregar pacientes.`
+            );
+        }
+
+        const retorno = await resposta.json();
+
+        console.log("Resposta recebida da API:", retorno);
+
+        todosOsLeads = normalizarResposta(retorno);
+        leadsFiltrados = [...todosOsLeads];
+
+        console.log("Pacientes normalizados:", todosOsLeads);
+
+        renderizarTudo();
+    } catch (erro) {
+        console.error("Erro ao carregar pacientes:", erro);
+        mostrarErroNaTabela(erro.message);
+    }
+}
+
+
+// ======================================================
+// NORMALIZAÇÃO DA RESPOSTA
+// ======================================================
+
+function normalizarResposta(retorno) {
+    if (Array.isArray(retorno)) {
+        return retorno;
+    }
+
+    if (retorno && Array.isArray(retorno.data)) {
+        return retorno.data;
+    }
+
+    if (retorno && Array.isArray(retorno.visitantes)) {
+        return retorno.visitantes;
+    }
+
+    if (retorno && Array.isArray(retorno.leads)) {
+        return retorno.leads;
+    }
+
+    if (retorno && Array.isArray(retorno.pacientes)) {
+        return retorno.pacientes;
+    }
+
+    console.warn(
+        "A API respondeu, mas não foi encontrado um array de pacientes:",
+        retorno
+    );
+
+    return [];
+}
+
+
+// ======================================================
+// RENDERIZAÇÃO PRINCIPAL
+// ======================================================
+
+function renderizarTudo() {
+    renderizarTabela(leadsFiltrados);
+    atualizarIndicadores(leadsFiltrados);
+    atualizarResumo(leadsFiltrados);
+}
+
+
+function renderizarTabela(leads) {
+    const tbody = obterCorpoTabela();
+
+    if (!tbody) {
+        console.error(
+            "Não encontrei o corpo da tabela no leads.html."
+        );
+
+        return;
+    }
+
+    tbody.innerHTML = "";
+
+    if (!Array.isArray(leads) || leads.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="estado-tabela">
+                    Nenhum paciente encontrado.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    leads.forEach((lead) => {
+        const linha = criarLinhaLead(lead);
+        tbody.appendChild(linha);
+    });
+}
+
+
+function criarLinhaLead(lead) {
+    const tr = document.createElement("tr");
+
+    const id = obterPrimeiroValor(
+        lead.id,
+        lead.visitante_id,
+        lead.uuid
+    );
+
+    const nome = obterPrimeiroValor(
+        lead.nome,
+        lead.name,
+        lead.nome_completo,
+        lead.paciente,
+        "Sem nome"
+    );
+
+    const telefone = obterPrimeiroValor(
+        lead.telefone,
+        lead.phone,
+        lead.whatsapp,
+        lead.celular,
+        "-"
+    );
+
+    const origem = obterPrimeiroValor(
+        lead.origem,
+        lead.source,
+        lead.utm_source,
+        lead.campanha,
+        lead.nome_campanha,
+        "Direto"
+    );
+
+    const campanha = obterPrimeiroValor(
+        lead.campanha,
+        lead.nome_campanha,
+        lead.utm_campaign,
+        lead.ad_name,
+        "-"
+    );
+
+    const status = obterPrimeiroValor(
+        lead.status,
+        lead.situacao,
+        lead.etapa,
+        "Novo"
+    );
+
+    const responsavel = obterPrimeiroValor(
+        lead.responsavel,
+        lead.atendente,
+        lead.secretaria,
+        "-"
+    );
+
+    const dataCriacao = obterPrimeiroValor(
+        lead.created_at,
+        lead.criado_em,
+        lead.data_criacao,
+        lead.data,
+        null
+    );
+
+    const ultimaInteracao = obterPrimeiroValor(
+        lead.updated_at,
+        lead.atualizado_em,
+        lead.ultima_interacao,
+        lead.data_atualizacao,
+        dataCriacao
+    );
+
+    tr.dataset.id = id || "";
+
+    tr.innerHTML = `
+        <td>
+            <div class="paciente-identificacao">
+                <div class="paciente-avatar">
+                    ${escaparHTML(obterIniciais(nome))}
+                </div>
+
+                <div class="paciente-dados">
+                    <strong>${escaparHTML(nome)}</strong>
+                    <span>${escaparHTML(formatarTelefone(telefone))}</span>
+                </div>
+            </div>
+        </td>
+
+        <td>
+            <span class="origem-lead">
+                ${escaparHTML(origem)}
+            </span>
+        </td>
+
+        <td>
+            ${escaparHTML(campanha)}
+        </td>
+
+        <td>
+            <span class="status-badge ${obterClasseStatus(status)}">
+                ${escaparHTML(formatarStatus(status))}
+            </span>
+        </td>
+
+        <td>
+            ${escaparHTML(responsavel)}
+        </td>
+
+        <td>
+            ${escaparHTML(formatarData(dataCriacao))}
+        </td>
+
+        <td>
+            ${escaparHTML(formatarData(ultimaInteracao))}
+        </td>
+
+        <td>
+            <button
+                type="button"
+                class="botao-acao btn-visualizar"
+                data-id="${escaparAtributo(id)}"
+                aria-label="Visualizar paciente"
+                title="Visualizar paciente"
+            >
+                <i class="fa-solid fa-eye"></i>
+                <span class="texto-botao-acao">Ver</span>
+            </button>
+        </td>
+    `;
+
+    tr.addEventListener("click", (evento) => {
+        const botao = evento.target.closest(".btn-visualizar");
+
+        if (botao) {
+            abrirLead(id);
+        }
+    });
+
+    return tr;
+}
+
+
+// ======================================================
+// INDICADORES E RESUMO
+// ======================================================
+
+function atualizarIndicadores(leads) {
+    const total = leads.length;
+
+    const novos = leads.filter((lead) => {
+        return normalizarTexto(obterStatusLead(lead)) === "novo";
+    }).length;
+
+    const emAtendimento = leads.filter((lead) => {
+        const status = normalizarTexto(obterStatusLead(lead));
+
+        return [
+            "em atendimento",
+            "atendimento",
+            "contato iniciado",
+            "em contato"
+        ].includes(status);
+    }).length;
+
+    const agendados = leads.filter((lead) => {
+        const status = normalizarTexto(obterStatusLead(lead));
+
+        return [
+            "agendado",
+            "agendada",
+            "consulta agendada"
+        ].includes(status);
+    }).length;
+
+    const convertidos = leads.filter((lead) => {
+        const status = normalizarTexto(obterStatusLead(lead));
+
+        return [
+            "convertido",
+            "convertida",
+            "fechado",
+            "fechada",
+            "venda",
+            "cliente"
+        ].includes(status);
+    }).length;
+
+    atualizarTextoElemento(
+        [
+            "#totalPacientes",
+            "#totalLeads",
+            "[data-kpi='total']"
+        ],
+        total
+    );
+
+    atualizarTextoElemento(
+        [
+            "#novosPacientes",
+            "#leadsNovos",
+            "#totalNovos",
+            "[data-kpi='novos']"
+        ],
+        novos
+    );
+
+    atualizarTextoElemento(
+        [
+            "#emAtendimento",
+            "#totalAtendimento",
+            "[data-kpi='atendimento']"
+        ],
+        emAtendimento
+    );
+
+    atualizarTextoElemento(
+        [
+            "#totalAgendados",
+            "#agendados",
+            "[data-kpi='agendados']"
+        ],
+        agendados
+    );
+
+    atualizarTextoElemento(
+        [
+            "#totalConvertidos",
+            "#convertidos",
+            "[data-kpi='convertidos']"
+        ],
+        convertidos
+    );
+}
+
+
+function atualizarResumo(leads) {
+    atualizarTextoElemento(
+        [
+            "#quantidadeResultados",
+            "#contadorResultados",
+            "[data-total-resultados]"
+        ],
+        `${leads.length} paciente${leads.length === 1 ? "" : "s"}`
+    );
+}
+
+
+function atualizarTextoElemento(seletores, valor) {
+    const elemento = encontrarElemento(...seletores);
+
+    if (elemento) {
+        elemento.textContent = String(valor);
+    }
+}
+
+
+// ======================================================
+// BUSCA E FILTROS
 // ======================================================
 
 function configurarEventos() {
-
-    btnAtualizar?.addEventListener(
-        "click",
-        carregarPacientes
-    );
-
-    btnExportar?.addEventListener(
-        "click",
-        exportarCSV
-    );
-
-    btnNovoPaciente?.addEventListener(
-        "click",
-        abrirCadastroNovoPaciente
-    );
-
-    btnSalvarDrawer?.addEventListener(
-        "click",
-        salvarPaciente
-    );
-
-    pesquisa?.addEventListener(
-        "input",
-        aplicarFiltros
-    );
-
-    filtrosStatus?.addEventListener(
-        "click",
-        tratarCliqueFiltro
-    );
-
-    tabela?.addEventListener(
-        "click",
-        tratarAcaoTabela
-    );
-
-    document.addEventListener(
-        "keydown",
-        tratarAtalhos
-    );
-
+    configurarBusca();
+    configurarFiltros();
+    configurarDrawer();
+    configurarFormulario();
 }
 
 
-// ======================================================
-// CARREGAR PACIENTES
-// ======================================================
+function configurarBusca() {
+    const campoBusca = obterCampoBusca();
 
-async function carregarPacientes() {
-
-    if (carregando) return;
-
-    carregando = true;
-
-    mostrarCarregamento();
-
-    atualizarEstadoBotao(true);
-
-    try {
-
-const resposta = await fetch("/api/visitantes", {
-    method: "GET",
-    headers: {
-        Accept: "application/json"
+    if (!campoBusca) {
+        return;
     }
-});
 
-const texto = await resposta.text();
-
-console.log("URL chamada:", resposta.url);
-console.log("Status:", resposta.status);
-console.log("Resposta recebida:", texto);
-
-if (!resposta.ok) {
-    throw new Error(`Erro ${resposta.status}: ${texto}`);
-}
-
-let resultado;
-
-try {
-    resultado = JSON.parse(texto);
-} catch {
-    throw new Error(
-        "A rota /visitantes devolveu HTML em vez de JSON."
-    );
-}
-
-        if (!resposta.ok) {
-
-            const mensagem =
-                await obterMensagemErro(resposta);
-
-            throw new Error(
-                mensagem || "Erro ao carregar pacientes."
-            );
-
-        }
-
-        const resultado =
-    await resposta.json();
-
-console.log(
-    "Resposta da API /visitantes:",
-    resultado
-);
-
-pacientes =
-    Array.isArray(resultado)
-        ? resultado
-        : Array.isArray(resultado.dados)
-            ? resultado.dados
-            : Array.isArray(resultado.pacientes)
-                ? resultado.pacientes
-                : [];
-
-console.log(
-    "Pacientes carregados:",
-    pacientes
-);
-
-        atualizarIndicadores();
-
+    campoBusca.addEventListener("input", () => {
         aplicarFiltros();
-
-    } catch (erro) {
-
-        console.error(
-            "Erro carregando pacientes:",
-            erro
-        );
-
-        mostrarErroTabela(
-            erro.message ||
-            "Não foi possível carregar os pacientes."
-        );
-
-        notificar(
-            "Erro",
-            "Não foi possível carregar os pacientes.",
-            "error"
-        );
-
-    } finally {
-
-        carregando = false;
-
-        atualizarEstadoBotao(false);
-
-    }
-
+    });
 }
 
 
-// ======================================================
-// FILTROS
-// ======================================================
+function configurarFiltros() {
+    const filtros = document.querySelectorAll(
+        ".filter-chip, .filtro-chip, [data-filter], [data-filtro]"
+    );
 
-function tratarCliqueFiltro(evento) {
+    filtros.forEach((filtro) => {
+        filtro.addEventListener("click", () => {
+            filtros.forEach((item) => {
+                item.classList.remove("active");
+                item.classList.remove("ativo");
+            });
 
-    const botao =
-        evento.target.closest(".filter-chip");
+            filtro.classList.add("active");
+            filtro.classList.add("ativo");
 
-    if (!botao) return;
-
-    document
-        .querySelectorAll(".filter-chip")
-        .forEach((item) => {
-
-            item.classList.remove("active");
-
+            aplicarFiltros();
         });
-
-    botao.classList.add("active");
-
-    filtroAtual =
-        botao.dataset.status || "todos";
-
-    aplicarFiltros();
-
+    });
 }
 
 
 function aplicarFiltros() {
+    const campoBusca = obterCampoBusca();
 
-    const termo =
-        normalizarTexto(
-            pesquisa?.value || ""
+    const termo = normalizarTexto(
+        campoBusca ? campoBusca.value : ""
+    );
+
+    const filtroAtivo = encontrarElemento(
+        ".filter-chip.active",
+        ".filtro-chip.ativo",
+        "[data-filter].active",
+        "[data-filtro].ativo"
+    );
+
+    const valorFiltro = normalizarTexto(
+        filtroAtivo
+            ? (
+                filtroAtivo.dataset.filter ||
+                filtroAtivo.dataset.filtro ||
+                filtroAtivo.textContent
+            )
+            : "todos"
+    );
+
+    leadsFiltrados = todosOsLeads.filter((lead) => {
+        const nome = normalizarTexto(
+            obterPrimeiroValor(
+                lead.nome,
+                lead.name,
+                lead.nome_completo
+            )
         );
 
-    listaExibida =
-        pacientes.filter((paciente) => {
+        const telefone = normalizarTexto(
+            obterPrimeiroValor(
+                lead.telefone,
+                lead.phone,
+                lead.whatsapp,
+                lead.celular
+            )
+        );
 
-            const correspondePesquisa =
-                pacienteCorrespondePesquisa(
-                    paciente,
-                    termo
-                );
+        const campanha = normalizarTexto(
+            obterPrimeiroValor(
+                lead.campanha,
+                lead.nome_campanha,
+                lead.utm_campaign
+            )
+        );
 
-            const correspondeStatus =
-                pacienteCorrespondeStatus(
-                    paciente,
-                    filtroAtual
-                );
+        const origem = normalizarTexto(
+            obterPrimeiroValor(
+                lead.origem,
+                lead.source,
+                lead.utm_source
+            )
+        );
 
-            return (
-                correspondePesquisa &&
-                correspondeStatus
-            );
+        const status = normalizarTexto(
+            obterStatusLead(lead)
+        );
 
-        });
+        const correspondeBusca =
+            termo === "" ||
+            nome.includes(termo) ||
+            telefone.includes(termo) ||
+            campanha.includes(termo) ||
+            origem.includes(termo) ||
+            status.includes(termo);
 
-    renderizarTabela(listaExibida);
+        const correspondeFiltro =
+            valorFiltro === "" ||
+            valorFiltro === "todos" ||
+            valorFiltro === "todas" ||
+            status.includes(valorFiltro);
 
-}
-
-
-function pacienteCorrespondePesquisa(
-    paciente,
-    termo
-) {
-
-    if (!termo) return true;
-
-    const campos = [
-
-        paciente.nome,
-
-        paciente.telefone,
-
-        paciente.whatsapp,
-
-        paciente.utm_source,
-
-        paciente.origem,
-
-        paciente.utm_campaign,
-
-        paciente.adset_name,
-
-        paciente.ad_name,
-
-        paciente.visitante_id,
-
-        paciente.id
-
-    ];
-
-    return campos.some((campo) => {
-
-        return normalizarTexto(campo)
-            .includes(termo);
-
+        return correspondeBusca && correspondeFiltro;
     });
 
-}
-
-
-function pacienteCorrespondeStatus(
-    paciente,
-    filtro
-) {
-
-    if (
-        !filtro ||
-        filtro === "todos"
-    ) {
-
-        return true;
-
-    }
-
-    return obterStatusNormalizado(paciente) === filtro;
-
+    renderizarTudo();
 }
 
 
 // ======================================================
-// INDICADORES
+// DRAWER / DETALHES DO PACIENTE
 // ======================================================
 
-function atualizarIndicadores() {
+function configurarDrawer() {
+    const botoesFechar = document.querySelectorAll(
+        "#fecharDrawer, .fechar-drawer, [data-close-drawer]"
+    );
 
-    const hoje =
-        obterInicioDoDia();
-
-    let totalNovosHoje = 0;
-
-    let totalAtendimento = 0;
-
-    let totalAgendados = 0;
-
-    let totalConvertidos = 0;
-
-    let totalAguardando = 0;
-
-    let totalContatosHoje = 0;
-
-    let totalAvaliacoesHoje = 0;
-
-    let totalReceitaHoje = 0;
-
-    pacientes.forEach((paciente) => {
-
-        const status =
-            obterStatusNormalizado(paciente);
-
-        const dataCadastro =
-            obterDataCadastro(paciente);
-
-        const dataAtualizacao =
-            obterDataAtualizacao(paciente);
-
-        const dataAgendamento =
-            obterDataAgendamento(paciente);
-
-        const criadoHoje =
-            dataCadastro &&
-            dataCadastro >= hoje;
-
-        const atualizadoHoje =
-            dataAtualizacao &&
-            dataAtualizacao >= hoje;
-
-        const agendadoHoje =
-            dataAgendamento &&
-            dataAgendamento >= hoje &&
-            dataAgendamento < adicionarDias(
-                hoje,
-                1
-            );
-
-        if (
-            status === "novo" &&
-            criadoHoje
-        ) {
-
-            totalNovosHoje++;
-
-        }
-
-        if (status === "atendimento") {
-
-            totalAtendimento++;
-
-        }
-
-        if (status === "agendado") {
-
-            totalAgendados++;
-
-        }
-
-        if (status === "convertido") {
-
-            totalConvertidos++;
-
-        }
-
-        if (status === "novo") {
-
-            totalAguardando++;
-
-        }
-
-        if (
-            atualizadoHoje &&
-            status !== "novo"
-        ) {
-
-            totalContatosHoje++;
-
-        }
-
-        if (
-            agendadoHoje ||
-            (
-                status === "agendado" &&
-                criadoHoje
-            )
-        ) {
-
-            totalAvaliacoesHoje++;
-
-        }
-
-        if (
-            status === "convertido" &&
-            (
-                atualizadoHoje ||
-                criadoHoje
-            )
-        ) {
-
-            totalReceitaHoje +=
-                obterValorConversao(paciente);
-
-        }
-
+    botoesFechar.forEach((botao) => {
+        botao.addEventListener("click", fecharDrawer);
     });
 
-    definirTexto(
-        novosHoje,
-        totalNovosHoje
+    const overlay = encontrarElemento(
+        "#drawerOverlay",
+        ".drawer-overlay",
+        "[data-drawer-overlay]"
     );
 
-    definirTexto(
-        emAtendimento,
-        totalAtendimento
-    );
-
-    definirTexto(
-        agendados,
-        totalAgendados
-    );
-
-    definirTexto(
-        convertidos,
-        totalConvertidos
-    );
-
-    definirTexto(
-        aguardandoRetorno,
-        totalAguardando
-    );
-
-    definirTexto(
-        contatoHoje,
-        totalContatosHoje
-    );
-
-    definirTexto(
-        avaliacoesHoje,
-        totalAvaliacoesHoje
-    );
-
-    definirTexto(
-        receitaHoje,
-        formatarMoeda(totalReceitaHoje)
-    );
-
-}
-
-
-// ======================================================
-// RENDERIZAR TABELA
-// ======================================================
-
-function renderizarTabela(lista) {
-
-    if (!tabela) return;
-
-    definirTexto(
-        contadorPacientes,
-        `${lista.length} ${
-            lista.length === 1
-                ? "registro encontrado"
-                : "registros encontrados"
-        }`
-    );
-
-    if (lista.length === 0) {
-
-        tabela.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="6"
-                    class="empty-state"
-                >
-
-                    <i class="fa-solid fa-users-slash"></i>
-
-                    <strong>
-                        Nenhum paciente encontrado
-                    </strong>
-
-                    <p>
-                        Tente alterar a busca ou o filtro selecionado.
-                    </p>
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
+    if (overlay) {
+        overlay.addEventListener("click", fecharDrawer);
     }
 
-    tabela.innerHTML =
-        lista.map((paciente) => {
-
-            return criarLinhaPaciente(paciente);
-
-        }).join("");
-
+    document.addEventListener("keydown", (evento) => {
+        if (evento.key === "Escape") {
+            fecharDrawer();
+        }
+    });
 }
 
 
-function criarLinhaPaciente(paciente) {
-
-    const id =
-        obterIdPaciente(paciente);
-
-    const nome =
-        paciente.nome || "Paciente sem nome";
-
-    const telefone =
-        obterTelefone(paciente);
-
-    const origem =
-        obterOrigem(paciente);
-
-    const campanha =
-        paciente.utm_campaign ||
-        paciente.primeira_utm_campaign ||
-        paciente.ultima_utm_campaign ||
-        "Sem campanha";
-
-    const ultimaInteracao =
-        obterDataAtualizacao(paciente) ||
-        obterDataCadastro(paciente);
-
-    const status =
-        obterStatusNormalizado(paciente);
-
-    const statusTexto =
-        obterNomeStatus(status);
-
-    const iniciais =
-        obterIniciais(nome);
-
-    const classeOrigem =
-        obterClasseOrigem(origem);
-
-    const telefoneLimpo =
-        limparTelefone(telefone);
-
-    return `
-
-        <tr>
-
-            <td>
-
-                <div class="patient-identification">
-
-                    <div class="patient-avatar">
-                        ${escapeHtml(iniciais)}
-                    </div>
-
-                    <div>
-
-                        <div class="patient-name">
-                            ${escapeHtml(nome)}
-                        </div>
-
-                        <span class="patient-code">
-                            ${
-                                id
-                                    ? `Paciente ${escapeHtml(String(id))}`
-                                    : "Cadastro sem identificação"
-                            }
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </td>
-
-            <td>
-
-                <span class="contact-value">
-                    ${escapeHtml(formatarTelefone(telefone))}
-                </span>
-
-                <span class="contact-secondary">
-                    WhatsApp
-                </span>
-
-            </td>
-
-            <td>
-
-                <span class="source-label">
-
-                    <span
-                        class="source-dot ${classeOrigem}"
-                    ></span>
-
-                    ${escapeHtml(origem)}
-
-                </span>
-
-                <span class="contact-secondary">
-                    ${escapeHtml(campanha)}
-                </span>
-
-            </td>
-
-            <td>
-
-                <span class="contact-value">
-                    ${formatarTempoRelativo(ultimaInteracao)}
-                </span>
-
-                <span class="contact-secondary">
-                    ${formatarDataHora(ultimaInteracao)}
-                </span>
-
-            </td>
-
-            <td>
-
-                <span
-                    class="patient-status status-${status}"
-                >
-
-                    ${escapeHtml(statusTexto)}
-
-                </span>
-
-            </td>
-
-            <td>
-
-                <div class="patient-actions">
-
-                    <button
-                        type="button"
-                        class="action-button whatsapp"
-                        data-action="whatsapp"
-                        data-id="${escapeHtml(String(id || ""))}"
-                        title="Abrir WhatsApp"
-                        ${
-                            telefoneLimpo
-                                ? ""
-                                : "disabled"
-                        }
-                    >
-
-                        <i class="fa-brands fa-whatsapp"></i>
-
-                    </button>
-
-                    <button
-                        type="button"
-                        class="action-button view"
-                        data-action="visualizar"
-                        data-id="${escapeHtml(String(id || ""))}"
-                        title="Visualizar paciente"
-                    >
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </button>
-
-                    <button
-                        type="button"
-                        class="action-button edit"
-                        data-action="editar"
-                        data-id="${escapeHtml(String(id || ""))}"
-                        title="Editar paciente"
-                    >
-
-                        <i class="fa-solid fa-pen"></i>
-
-                    </button>
-
-                </div>
-
-            </td>
-
-        </tr>
-
-    `;
-
-}
-
-
-// ======================================================
-// AÇÕES DA TABELA
-// ======================================================
-
-function tratarAcaoTabela(evento) {
-
-    const botao =
-        evento.target.closest("[data-action]");
-
-    if (!botao) return;
-
-    const id =
-        botao.dataset.id;
-
-    const acao =
-        botao.dataset.action;
-
-    const paciente =
-        localizarPaciente(id);
-
-    if (!paciente) {
-
-        notificar(
-            "Paciente não encontrado",
-            "Atualize a lista e tente novamente.",
-            "warning"
+function abrirLead(id) {
+    const lead = todosOsLeads.find((item) => {
+        const itemId = obterPrimeiroValor(
+            item.id,
+            item.visitante_id,
+            item.uuid
         );
 
+        return String(itemId) === String(id);
+    });
+
+    if (!lead) {
+        console.error("Paciente não encontrado:", id);
         return;
-
     }
 
-    if (acao === "whatsapp") {
+    leadSelecionado = lead;
 
-        abrirWhatsApp(paciente);
+    preencherDrawer(lead);
 
-        return;
+    const drawer = encontrarElemento(
+        "#drawerPaciente",
+        "#leadDrawer",
+        ".drawer-paciente",
+        ".lead-drawer",
+        "[data-drawer]"
+    );
 
+    const overlay = encontrarElemento(
+        "#drawerOverlay",
+        ".drawer-overlay",
+        "[data-drawer-overlay]"
+    );
+
+    if (drawer) {
+        drawer.classList.add("open");
+        drawer.classList.add("ativo");
+        drawer.setAttribute("aria-hidden", "false");
     }
 
-    if (
-        acao === "visualizar" ||
-        acao === "editar"
-    ) {
-
-        abrirPaciente(paciente);
-
+    if (overlay) {
+        overlay.classList.add("active");
+        overlay.classList.add("ativo");
     }
 
+    document.body.classList.add("drawer-aberto");
 }
 
 
-// ======================================================
-// WHATSAPP
-// ======================================================
-
-function abrirWhatsApp(paciente) {
-
-    const telefone =
-        limparTelefone(
-            obterTelefone(paciente)
-        );
-
-    if (!telefone) {
-
-        notificar(
-            "Telefone ausente",
-            "Esse paciente ainda não possui telefone cadastrado.",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    let numero = telefone;
-
-    if (
-        numero.length >= 10 &&
-        numero.length <= 11
-    ) {
-
-        numero = `55${numero}`;
-
-    }
-
-    const nome =
-        paciente.nome || "";
-
-    const mensagem =
-        nome
-            ? `Olá, ${nome}! Tudo bem? Aqui é da Espaço da Coluna.`
-            : "Olá! Tudo bem? Aqui é da Espaço da Coluna.";
-
-    const url =
-        `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
-
-    window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer"
+function fecharDrawer() {
+    const drawer = encontrarElemento(
+        "#drawerPaciente",
+        "#leadDrawer",
+        ".drawer-paciente",
+        ".lead-drawer",
+        "[data-drawer]"
     );
 
+    const overlay = encontrarElemento(
+        "#drawerOverlay",
+        ".drawer-overlay",
+        "[data-drawer-overlay]"
+    );
+
+    if (drawer) {
+        drawer.classList.remove("open");
+        drawer.classList.remove("ativo");
+        drawer.setAttribute("aria-hidden", "true");
+    }
+
+    if (overlay) {
+        overlay.classList.remove("active");
+        overlay.classList.remove("ativo");
+    }
+
+    document.body.classList.remove("drawer-aberto");
 }
 
 
-// ======================================================
-// ABRIR DRAWER
-// ======================================================
-
-function abrirPaciente(pacienteOuIndice) {
-
-    let paciente = pacienteOuIndice;
-
-    if (
-        typeof pacienteOuIndice === "number"
-    ) {
-
-        paciente =
-            pacientes[pacienteOuIndice];
-
-    }
-
-    if (!paciente) return;
-
-    pacienteAtual = paciente;
-
-    const id =
-        obterIdPaciente(paciente);
-
-    definirTexto(
-        drawerNome,
-        paciente.nome || "Paciente sem nome"
+function preencherDrawer(lead) {
+    preencherCampo(
+        ["#leadId", "#pacienteId", "[name='id']"],
+        obterPrimeiroValor(
+            lead.id,
+            lead.visitante_id,
+            lead.uuid
+        )
     );
 
-    definirTexto(
-        drawerLead,
-        id
-            ? `Paciente ${id}`
-            : "Paciente sem código"
+    preencherCampo(
+        ["#nome", "#nomePaciente", "[name='nome']"],
+        obterPrimeiroValor(
+            lead.nome,
+            lead.name,
+            lead.nome_completo
+        )
     );
 
-    definirTexto(
-        drawerTelefone,
+    preencherCampo(
+        [
+            "#telefone",
+            "#telefonePaciente",
+            "[name='telefone']"
+        ],
+        obterPrimeiroValor(
+            lead.telefone,
+            lead.phone,
+            lead.whatsapp,
+            lead.celular
+        )
+    );
+
+    preencherCampo(
+        ["#email", "#emailPaciente", "[name='email']"],
+        obterPrimeiroValor(
+            lead.email,
+            lead.email_address
+        )
+    );
+
+    preencherCampo(
+        ["#status", "#statusPaciente", "[name='status']"],
+        obterStatusLead(lead)
+    );
+
+    preencherCampo(
+        [
+            "#responsavel",
+            "#responsavelPaciente",
+            "[name='responsavel']"
+        ],
+        obterPrimeiroValor(
+            lead.responsavel,
+            lead.atendente,
+            lead.secretaria
+        )
+    );
+
+    preencherCampo(
+        [
+            "#observacoes",
+            "#observacao",
+            "[name='observacoes']"
+        ],
+        obterPrimeiroValor(
+            lead.observacoes,
+            lead.observacao,
+            lead.notes
+        )
+    );
+
+    preencherTexto(
+        [
+            "#drawerNome",
+            "#tituloPaciente",
+            "[data-paciente-nome]"
+        ],
+        obterPrimeiroValor(
+            lead.nome,
+            lead.name,
+            lead.nome_completo,
+            "Paciente"
+        )
+    );
+
+    preencherTexto(
+        [
+            "#drawerTelefone",
+            "[data-paciente-telefone]"
+        ],
         formatarTelefone(
-            obterTelefone(paciente)
+            obterPrimeiroValor(
+                lead.telefone,
+                lead.phone,
+                lead.whatsapp,
+                lead.celular,
+                "-"
+            )
         )
     );
+}
 
-    definirTexto(
-        drawerCadastro,
-        formatarDataHora(
-            obterDataCadastro(paciente)
-        )
-    );
 
-    definirTexto(
-        drawerOrigem,
-        obterOrigem(paciente)
-    );
+function preencherCampo(seletores, valor) {
+    const campo = encontrarElemento(...seletores);
 
-    definirTexto(
-        drawerStatus,
-        obterNomeStatus(
-            obterStatusNormalizado(paciente)
-        )
-    );
-
-    definirTexto(
-        drawerCampanha,
-        paciente.utm_campaign ||
-        paciente.primeira_utm_campaign ||
-        paciente.ultima_utm_campaign ||
-        "-"
-    );
-
-    definirTexto(
-        drawerConjunto,
-        paciente.adset_name ||
-        paciente.conjunto ||
-        paciente.utm_content ||
-        "-"
-    );
-
-    definirTexto(
-        drawerAnuncio,
-        paciente.ad_name ||
-        paciente.anuncio ||
-        paciente.utm_term ||
-        "-"
-    );
-
-    definirTexto(
-        drawerOrigemMarketing,
-        paciente.utm_source ||
-        paciente.primeira_utm_source ||
-        paciente.ultima_utm_source ||
-        "-"
-    );
-
-    if (valorConversao) {
-
-        valorConversao.value =
-            obterValorConversao(paciente) || "";
-
+    if (campo) {
+        campo.value = valor ?? "";
     }
+}
 
-    if (statusFinanceiro) {
 
-        statusFinanceiro.value =
-            paciente.status_financeiro ||
-            paciente.status ||
-            "novo";
+function preencherTexto(seletores, valor) {
+    const elemento = encontrarElemento(...seletores);
 
+    if (elemento) {
+        elemento.textContent = valor ?? "";
     }
-
-    if (observacoes) {
-
-        observacoes.value =
-            paciente.observacoes ||
-            paciente.observacao ||
-            "";
-
-    }
-
-    preencherDadosTecnicos(paciente);
-
-    abrirDrawerSeguro();
-
 }
 
 
 // ======================================================
-// DADOS TÉCNICOS
+// SALVAMENTO DO PACIENTE
 // ======================================================
 
-function preencherDadosTecnicos(paciente) {
-
-    definirTexto(
-        campoUtmSource,
-        paciente.utm_source ||
-        paciente.primeira_utm_source ||
-        paciente.ultima_utm_source ||
-        "-"
+function configurarFormulario() {
+    const formulario = encontrarElemento(
+        "#formPaciente",
+        "#formLead",
+        ".form-paciente",
+        "[data-form-paciente]"
     );
 
-    definirTexto(
-        campoUtmMedium,
-        paciente.utm_medium ||
-        paciente.primeira_utm_medium ||
-        paciente.ultima_utm_medium ||
-        "-"
+    if (formulario) {
+        formulario.addEventListener(
+            "submit",
+            salvarLead
+        );
+    }
+
+    const botaoSalvar = encontrarElemento(
+        "#salvarPaciente",
+        "#salvarLead",
+        ".btn-salvar-paciente",
+        "[data-save-paciente]"
     );
 
-    definirTexto(
-        campoUtmCampaign,
-        paciente.utm_campaign ||
-        paciente.primeira_utm_campaign ||
-        paciente.ultima_utm_campaign ||
-        "-"
-    );
-
-    definirTexto(
-        campoUtmContent,
-        paciente.utm_content ||
-        paciente.primeira_utm_content ||
-        paciente.ultima_utm_content ||
-        "-"
-    );
-
-    definirTexto(
-        campoUtmTerm,
-        paciente.utm_term ||
-        paciente.primeira_utm_term ||
-        paciente.ultima_utm_term ||
-        "-"
-    );
-
-    definirTexto(
-        campoFbclid,
-        paciente.fbclid ||
-        paciente.primeiro_fbclid ||
-        "-"
-    );
-
-    definirTexto(
-        campoFbp,
-        paciente.fbp || "-"
-    );
-
-    definirTexto(
-        campoFbc,
-        paciente.fbc || "-"
-    );
-
-    definirTexto(
-        campoIp,
-        paciente.ip ||
-        paciente.primeiro_ip ||
-        "-"
-    );
-
-    definirTexto(
-        campoUserAgent,
-        paciente.user_agent ||
-        paciente.useragent ||
-        paciente.primeiro_user_agent ||
-        "-"
-    );
-
-    definirTexto(
-        campoLandingPage,
-        paciente.landing_page ||
-        paciente.page_url ||
-        paciente.url ||
-        "-"
-    );
-
-    definirTexto(
-        campoReferer,
-        paciente.referer ||
-        paciente.referrer ||
-        "-"
-    );
-
-    definirTexto(
-        campoDevice,
-        paciente.device ||
-        paciente.dispositivo ||
-        paciente.ultimo_dispositivo ||
-        "-"
-    );
-
+    if (
+        botaoSalvar &&
+        (!formulario || botaoSalvar.form !== formulario)
+    ) {
+        botaoSalvar.addEventListener(
+            "click",
+            salvarLead
+        );
+    }
 }
 
 
-// ======================================================
-// SALVAR PACIENTE
-// ======================================================
+async function salvarLead(evento) {
+    if (evento) {
+        evento.preventDefault();
+    }
 
-async function salvarPaciente() {
+    if (!leadSelecionado) {
+        alert("Nenhum paciente foi selecionado.");
+        return;
+    }
 
-    if (!pacienteAtual) return;
-
-    const id =
-        obterIdPaciente(pacienteAtual);
+    const id = obterPrimeiroValor(
+        leadSelecionado.id,
+        leadSelecionado.visitante_id,
+        leadSelecionado.uuid
+    );
 
     if (!id) {
-
-        notificar(
-            "Erro",
-            "O paciente não possui identificação.",
-            "error"
-        );
-
+        alert("Não foi possível identificar o paciente.");
         return;
-
     }
 
-    const dados = {
+    const dados = coletarDadosDoFormulario();
 
-        valor_conversao:
-            Number(
-                valorConversao?.value || 0
-            ),
+    const botaoSalvar = encontrarElemento(
+        "#salvarPaciente",
+        "#salvarLead",
+        ".btn-salvar-paciente",
+        "[data-save-paciente]"
+    );
 
-        status_financeiro:
-            statusFinanceiro?.value ||
-            pacienteAtual.status_financeiro ||
-            pacienteAtual.status ||
-            "novo",
-
-        observacoes:
-            observacoes?.value || ""
-
-    };
+    definirBotaoCarregando(botaoSalvar, true);
 
     try {
-
-        atualizarEstadoSalvar(true);
-
         const resposta = await fetch(
-    `${API}/api/visitantes`,
-        {
-            method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify(dados)
-        }
-    );
-            
+            `${API_LEADS}/${encodeURIComponent(id)}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify(dados)
+            }
+        );
 
         if (!resposta.ok) {
-
-            const mensagem =
-                await obterMensagemErro(resposta);
+            const mensagem = await lerMensagemDeErro(resposta);
 
             throw new Error(
                 mensagem ||
-                "Não foi possível salvar."
+                `Erro HTTP ${resposta.status} ao atualizar paciente.`
             );
-
         }
 
-        fecharDrawerSeguro();
+        const retorno = await resposta.json().catch(() => null);
 
-        await carregarPacientes();
+        console.log("Paciente atualizado:", retorno);
 
-        notificar(
-            "Paciente atualizado",
-            "Os dados foram salvos com sucesso.",
-            "success"
+        mostrarMensagem(
+            "Paciente atualizado com sucesso.",
+            "sucesso"
         );
 
+        fecharDrawer();
+        await carregarLeads();
     } catch (erro) {
+        console.error("Erro ao atualizar paciente:", erro);
 
-        console.error(
-            "Erro salvando paciente:",
-            erro
+        mostrarMensagem(
+            erro.message || "Não foi possível atualizar o paciente.",
+            "erro"
         );
-
-        notificar(
-            "Erro",
-            erro.message ||
-            "Não foi possível salvar o paciente.",
-            "error"
-        );
-
     } finally {
-
-        atualizarEstadoSalvar(false);
-
+        definirBotaoCarregando(botaoSalvar, false);
     }
-
 }
 
 
-// ======================================================
-// NOVO PACIENTE
-// ======================================================
-
-function abrirCadastroNovoPaciente() {
-
-    notificar(
-        "Novo paciente",
-        "O formulário de cadastro será adicionado na próxima etapa.",
-        "info"
+function coletarDadosDoFormulario() {
+    const nome = obterValorCampo(
+        "#nome",
+        "#nomePaciente",
+        "[name='nome']"
     );
 
+    const telefone = obterValorCampo(
+        "#telefone",
+        "#telefonePaciente",
+        "[name='telefone']"
+    );
+
+    const email = obterValorCampo(
+        "#email",
+        "#emailPaciente",
+        "[name='email']"
+    );
+
+    const status = obterValorCampo(
+        "#status",
+        "#statusPaciente",
+        "[name='status']"
+    );
+
+    const responsavel = obterValorCampo(
+        "#responsavel",
+        "#responsavelPaciente",
+        "[name='responsavel']"
+    );
+
+    const observacoes = obterValorCampo(
+        "#observacoes",
+        "#observacao",
+        "[name='observacoes']"
+    );
+
+    const dados = {};
+
+    if (nome !== null) {
+        dados.nome = nome;
+    }
+
+    if (telefone !== null) {
+        dados.telefone = telefone;
+    }
+
+    if (email !== null) {
+        dados.email = email;
+    }
+
+    if (status !== null) {
+        dados.status = status;
+    }
+
+    if (responsavel !== null) {
+        dados.responsavel = responsavel;
+    }
+
+    if (observacoes !== null) {
+        dados.observacoes = observacoes;
+    }
+
+    return dados;
+}
+
+
+function obterValorCampo(...seletores) {
+    const campo = encontrarElemento(...seletores);
+
+    if (!campo) {
+        return null;
+    }
+
+    return String(campo.value ?? "").trim();
 }
 
 
 // ======================================================
-// EXPORTAR CSV
+// ESTADOS DA TABELA
 // ======================================================
 
-function exportarCSV() {
+function mostrarCarregamento() {
+    const tbody = obterCorpoTabela();
 
-    const lista =
-        listaExibida.length > 0
-            ? listaExibida
-            : pacientes;
-
-    if (lista.length === 0) {
-
-        notificar(
-            "Nenhum paciente",
-            "Não existem pacientes para exportar.",
-            "warning"
-        );
-
+    if (!tbody) {
         return;
-
     }
 
-    const linhas = [
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="10" class="estado-tabela">
+                Carregando pacientes...
+            </td>
+        </tr>
+    `;
+}
 
-        [
-            "ID",
-            "Nome",
-            "Telefone",
-            "Origem",
-            "Campanha",
-            "Status",
-            "Valor",
-            "Cadastro"
-        ]
 
-    ];
+function mostrarErroNaTabela(mensagem) {
+    const tbody = obterCorpoTabela();
 
-    lista.forEach((paciente) => {
+    if (!tbody) {
+        return;
+    }
 
-        linhas.push([
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="10" class="estado-tabela estado-erro">
+                Não foi possível carregar os pacientes.
+                <br>
+                <small>${escaparHTML(mensagem)}</small>
+                <br>
+                <button
+                    type="button"
+                    class="botao-tentar-novamente"
+                    id="tentarNovamente"
+                >
+                    Tentar novamente
+                </button>
+            </td>
+        </tr>
+    `;
 
-            obterIdPaciente(paciente) || "",
+    const botao = document.querySelector(
+        "#tentarNovamente"
+    );
 
-            paciente.nome || "",
-
-            obterTelefone(paciente),
-
-            obterOrigem(paciente),
-
-            paciente.utm_campaign ||
-            paciente.primeira_utm_campaign ||
-            "",
-
-            obterNomeStatus(
-                obterStatusNormalizado(paciente)
-            ),
-
-            obterValorConversao(paciente),
-
-            formatarDataHora(
-                obterDataCadastro(paciente)
-            )
-
-        ]);
-
-    });
-
-    const csv =
-        linhas.map((linha) => {
-
-            return linha
-                .map(escaparCampoCSV)
-                .join(";");
-
-        }).join("\n");
-
-    const blob =
-        new Blob(
-            [
-                "\uFEFF",
-                csv
-            ],
-            {
-                type:
-                    "text/csv;charset=utf-8"
-            }
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const link =
-        document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-        `atlas-pacientes-${obterDataArquivo()}.csv`;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(url);
-
+    if (botao) {
+        botao.addEventListener("click", carregarLeads);
+    }
 }
 
 
 // ======================================================
-// STATUS
+// MENSAGENS
 // ======================================================
 
-function obterStatusNormalizado(paciente) {
-
-    const status =
-        normalizarTexto(
-            paciente.status_financeiro ||
-            paciente.status ||
-            paciente.etapa ||
-            ""
-        );
-
-    if (
-        status.includes("perdid") ||
-        status.includes("cancel") ||
-        status.includes("nao converteu") ||
-        status.includes("não converteu")
-    ) {
-
-        return "perdido";
-
-    }
-
-    if (
-        status.includes("convert") ||
-        status.includes("fech") ||
-        status.includes("compareceu") ||
-        status.includes("pago")
-    ) {
-
-        return "convertido";
-
-    }
-
-    if (
-        status.includes("agend") ||
-        status.includes("avaliacao") ||
-        status.includes("avaliação")
-    ) {
-
-        return "agendado";
-
-    }
-
-    if (
-        status.includes("atendimento") ||
-        status.includes("contato") ||
-        status.includes("respond")
-    ) {
-
-        return "atendimento";
-
-    }
-
-    return "novo";
-
-}
-
-
-function obterNomeStatus(status) {
-
-    const nomes = {
-
-        novo:
-            "Novo",
-
-        atendimento:
-            "Em atendimento",
-
-        agendado:
-            "Agendado",
-
-        convertido:
-            "Convertido",
-
-        perdido:
-            "Perdido"
-
-    };
-
-    return nomes[status] || "Novo";
-
-}
-
-
-// ======================================================
-// HELPERS DE PACIENTE
-// ======================================================
-
-function obterIdPaciente(paciente) {
-
-    return (
-        paciente.id ??
-        paciente.visitante_id ??
-        paciente.lead_id ??
-        ""
+function mostrarMensagem(texto, tipo = "sucesso") {
+    const mensagemExistente = document.querySelector(
+        ".atlas-mensagem"
     );
 
-}
-
-
-function obterTelefone(paciente) {
-
-    return (
-        paciente.telefone ||
-        paciente.whatsapp ||
-        paciente.celular ||
-        ""
-    );
-
-}
-
-
-function obterOrigem(paciente) {
-
-    const origem =
-        paciente.utm_source ||
-        paciente.primeira_utm_source ||
-        paciente.ultima_utm_source ||
-        paciente.origem ||
-        "Direto";
-
-    if (
-        normalizarTexto(origem)
-            .includes("facebook")
-    ) {
-
-        return "Facebook";
-
+    if (mensagemExistente) {
+        mensagemExistente.remove();
     }
 
-    if (
-        normalizarTexto(origem)
-            .includes("instagram")
-    ) {
+    const mensagem = document.createElement("div");
 
-        return "Instagram";
+    mensagem.className =
+        `atlas-mensagem atlas-mensagem-${tipo}`;
 
+    mensagem.textContent = texto;
+
+    document.body.appendChild(mensagem);
+
+    window.setTimeout(() => {
+        mensagem.classList.add("visivel");
+    }, 10);
+
+    window.setTimeout(() => {
+        mensagem.classList.remove("visivel");
+
+        window.setTimeout(() => {
+            mensagem.remove();
+        }, 300);
+    }, 3000);
+}
+
+
+function definirBotaoCarregando(botao, carregando) {
+    if (!botao) {
+        return;
     }
 
-    if (
-        normalizarTexto(origem)
-            .includes("google")
-    ) {
-
-        return "Google";
-
-    }
-
-    return origem;
-
-}
-
-
-function obterClasseOrigem(origem) {
-
-    const valor =
-        normalizarTexto(origem);
-
-    if (valor.includes("facebook")) {
-
-        return "source-facebook";
-
-    }
-
-    if (valor.includes("instagram")) {
-
-        return "source-instagram";
-
-    }
-
-    if (valor.includes("google")) {
-
-        return "source-google";
-
-    }
-
-    return "source-direct";
-
-}
-
-
-function obterValorConversao(paciente) {
-
-    return Number(
-
-        paciente.valor_conversao ||
-        paciente.valor ||
-        paciente.receita ||
-        0
-
-    );
-
-}
-
-
-function obterDataCadastro(paciente) {
-
-    return criarDataValida(
-
-        paciente.created_at ||
-        paciente.criado_em ||
-        paciente.primeira_visita ||
-        paciente.timestamp_cliente
-
-    );
-
-}
-
-
-function obterDataAtualizacao(paciente) {
-
-    return criarDataValida(
-
-        paciente.updated_at ||
-        paciente.atualizado_em ||
-        paciente.ultima_visita ||
-        paciente.created_at ||
-        paciente.criado_em
-
-    );
-
-}
-
-
-function obterDataAgendamento(paciente) {
-
-    return criarDataValida(
-
-        paciente.data_agendamento ||
-        paciente.agendamento ||
-        paciente.data_avaliacao ||
-        paciente.appointment_date
-
-    );
-
-}
-
-
-function localizarPaciente(id) {
-
-    return pacientes.find((paciente) => {
-
-        return String(
-            obterIdPaciente(paciente)
-        ) === String(id);
-
-    });
-
-}
-
-
-// ======================================================
-// FORMATAÇÃO
-// ======================================================
-
-function formatarMoeda(valor) {
-
-    return Number(valor || 0)
-        .toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-
-}
-
-
-function formatarTelefone(valor) {
-
-    const telefone =
-        limparTelefone(valor);
-
-    if (!telefone) return "-";
-
-    const numero =
-        telefone.startsWith("55") &&
-        telefone.length > 11
-            ? telefone.slice(2)
-            : telefone;
-
-    if (numero.length === 11) {
-
-        return numero.replace(
-            /(\d{2})(\d{5})(\d{4})/,
-            "($1) $2-$3"
-        );
-
-    }
-
-    if (numero.length === 10) {
-
-        return numero.replace(
-            /(\d{2})(\d{4})(\d{4})/,
-            "($1) $2-$3"
-        );
-
-    }
-
-    return valor;
-
-}
-
-
-function limparTelefone(valor) {
-
-    return String(valor || "")
-        .replace(/\D/g, "");
-
-}
-
-
-function formatarDataHora(data) {
-
-    const valor =
-        criarDataValida(data);
-
-    if (!valor) return "-";
-
-    return valor.toLocaleString(
-        "pt-BR",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
+    if (carregando) {
+        botao.dataset.textoOriginal =
+            botao.innerHTML;
+
+        botao.disabled = true;
+        botao.innerHTML = "Salvando...";
+    } else {
+        botao.disabled = false;
+
+        if (botao.dataset.textoOriginal) {
+            botao.innerHTML =
+                botao.dataset.textoOriginal;
         }
-    );
-
+    }
 }
 
 
-function formatarTempoRelativo(data) {
+// ======================================================
+// FUNÇÕES AUXILIARES
+// ======================================================
 
-    const valor =
-        criarDataValida(data);
-
-    if (!valor) return "Sem registro";
-
-    const diferenca =
-        Date.now() - valor.getTime();
-
-    const minutos =
-        Math.floor(
-            diferenca / 60000
-        );
-
-    if (minutos < 1) {
-
-        return "Agora";
-
-    }
-
-    if (minutos < 60) {
-
-        return `Há ${minutos} min`;
-
-    }
-
-    const horas =
-        Math.floor(minutos / 60);
-
-    if (horas < 24) {
-
-        return `Há ${horas} ${
-            horas === 1
-                ? "hora"
-                : "horas"
-        }`;
-
-    }
-
-    const dias =
-        Math.floor(horas / 24);
-
-    if (dias < 30) {
-
-        return `Há ${dias} ${
-            dias === 1
-                ? "dia"
-                : "dias"
-        }`;
-
-    }
-
-    return valor.toLocaleDateString(
-        "pt-BR"
+function obterStatusLead(lead) {
+    return obterPrimeiroValor(
+        lead.status,
+        lead.situacao,
+        lead.etapa,
+        "Novo"
     );
+}
 
+
+function obterPrimeiroValor(...valores) {
+    for (const valor of valores) {
+        if (
+            valor !== undefined &&
+            valor !== null &&
+            String(valor).trim() !== ""
+        ) {
+            return valor;
+        }
+    }
+
+    return "";
+}
+
+
+function normalizarTexto(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
 }
 
 
 function obterIniciais(nome) {
-
-    const partes =
-        String(nome || "?")
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean);
+    const partes = String(nome ?? "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
 
     if (partes.length === 0) {
-
         return "?";
-
     }
 
     if (partes.length === 1) {
-
         return partes[0]
             .slice(0, 2)
             .toUpperCase();
-
     }
 
     return (
-        partes[0][0] +
-        partes[partes.length - 1][0]
+        partes[0].charAt(0) +
+        partes[partes.length - 1].charAt(0)
     ).toUpperCase();
-
 }
 
 
-// ======================================================
-// DATAS
-// ======================================================
+function formatarTelefone(valor) {
+    const telefoneOriginal = String(valor ?? "").trim();
 
-function criarDataValida(valor) {
-
-    if (!valor) return null;
-
-    const data =
-        valor instanceof Date
-            ? valor
-            : new Date(valor);
-
-    if (
-        Number.isNaN(
-            data.getTime()
-        )
-    ) {
-
-        return null;
-
+    if (!telefoneOriginal || telefoneOriginal === "-") {
+        return "-";
     }
 
-    return data;
+    const numeros = telefoneOriginal.replace(/\D/g, "");
 
-}
-
-
-function obterInicioDoDia() {
-
-    const data =
-        new Date();
-
-    data.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-    return data;
-
-}
-
-
-function adicionarDias(data, quantidade) {
-
-    const novaData =
-        new Date(data);
-
-    novaData.setDate(
-        novaData.getDate() +
-        quantidade
-    );
-
-    return novaData;
-
-}
-
-
-function obterDataArquivo() {
-
-    return new Date()
-        .toISOString()
-        .slice(0, 10);
-
-}
-
-
-// ======================================================
-// DRAWER SEGURO
-// ======================================================
-
-function abrirDrawerSeguro() {
+    let telefone = numeros;
 
     if (
-        typeof window.abrirDrawer ===
-        "function"
+        telefone.length === 12 ||
+        telefone.length === 13
     ) {
-
-        window.abrirDrawer();
-
-        return;
-
+        if (telefone.startsWith("55")) {
+            telefone = telefone.slice(2);
+        }
     }
 
-    patientDrawer?.classList.add("open");
-
-    document.body.classList.add(
-        "drawer-open"
-    );
-
-}
-
-
-function fecharDrawerSeguro() {
-
-    if (
-        typeof window.fecharDrawer ===
-        "function"
-    ) {
-
-        window.fecharDrawer();
-
-        return;
-
+    if (telefone.length === 11) {
+        return telefone.replace(
+            /^(\d{2})(\d{5})(\d{4})$/,
+            "($1) $2-$3"
+        );
     }
 
-    patientDrawer?.classList.remove("open");
+    if (telefone.length === 10) {
+        return telefone.replace(
+            /^(\d{2})(\d{4})(\d{4})$/,
+            "($1) $2-$3"
+        );
+    }
 
-    document.body.classList.remove(
-        "drawer-open"
-    );
-
+    return telefoneOriginal;
 }
 
 
-// ======================================================
-// INTERFACE
-// ======================================================
+function formatarData(valor) {
+    if (!valor) {
+        return "-";
+    }
 
-function mostrarCarregamento() {
+    const data = new Date(valor);
 
-    if (!tabela) return;
+    if (Number.isNaN(data.getTime())) {
+        return String(valor);
+    }
 
-    tabela.innerHTML = `
-
-        <tr>
-
-            <td
-                colspan="6"
-                class="loading"
-            >
-
-                <i class="fa-solid fa-spinner fa-spin"></i>
-
-                Carregando pacientes...
-
-            </td>
-
-        </tr>
-
-    `;
-
+    return new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).format(data);
 }
 
 
-function mostrarErroTabela(mensagem) {
+function formatarStatus(status) {
+    const texto = String(status ?? "").trim();
 
-    if (!tabela) return;
+    if (!texto) {
+        return "Novo";
+    }
 
-    tabela.innerHTML = `
-
-        <tr>
-
-            <td
-                colspan="6"
-                class="empty-state"
-            >
-
-                <i class="fa-solid fa-triangle-exclamation"></i>
-
-                <strong>
-                    Não foi possível carregar
-                </strong>
-
-                <p>
-                    ${escapeHtml(mensagem)}
-                </p>
-
-            </td>
-
-        </tr>
-
-    `;
-
-}
-
-
-function atualizarEstadoBotao(ativo) {
-
-    if (!btnAtualizar) return;
-
-    btnAtualizar.disabled = ativo;
-
-    btnAtualizar.innerHTML =
-        ativo
-            ? `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Atualizando
-              `
-            : `
-                <i class="fa-solid fa-rotate"></i>
-                Atualizar
-              `;
-
-}
-
-
-function atualizarEstadoSalvar(ativo) {
-
-    if (!btnSalvarDrawer) return;
-
-    btnSalvarDrawer.disabled = ativo;
-
-    btnSalvarDrawer.innerHTML =
-        ativo
-            ? `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Salvando
-              `
-            : `
-                <i class="fa-solid fa-floppy-disk"></i>
-                Salvar alterações
-              `;
-
-}
-
-
-function definirTexto(elemento, valor) {
-
-    if (!elemento) return;
-
-    elemento.textContent =
-        valor ?? "-";
-
-}
-
-
-// ======================================================
-// NOTIFICAÇÕES
-// ======================================================
-
-function notificar(
-    titulo,
-    mensagem,
-    tipo = "success"
-) {
-
-    if (
-        typeof Swal !== "undefined"
-    ) {
-
-        Swal.fire({
-
-            icon:
-                tipo === "info"
-                    ? "info"
-                    : tipo,
-
-            title:
-                titulo,
-
-            text:
-                mensagem,
-
-            timer:
-                tipo === "success"
-                    ? 1800
-                    : undefined,
-
-            showConfirmButton:
-                tipo !== "success"
-
+    return texto
+        .split(/[_-]/)
+        .join(" ")
+        .replace(/\b\w/g, (letra) => {
+            return letra.toUpperCase();
         });
+}
 
-        return;
 
+function obterClasseStatus(status) {
+    const valor = normalizarTexto(status);
+
+    if (
+        [
+            "convertido",
+            "convertida",
+            "fechado",
+            "fechada",
+            "cliente"
+        ].includes(valor)
+    ) {
+        return "status-convertido";
     }
 
-    console.log(
-        `${titulo}: ${mensagem}`
-    );
+    if (
+        [
+            "agendado",
+            "agendada",
+            "consulta agendada"
+        ].includes(valor)
+    ) {
+        return "status-agendado";
+    }
 
+    if (
+        [
+            "em atendimento",
+            "atendimento",
+            "em contato",
+            "contato iniciado"
+        ].includes(valor)
+    ) {
+        return "status-atendimento";
+    }
+
+    if (
+        [
+            "perdido",
+            "perdida",
+            "cancelado",
+            "cancelada",
+            "nao respondeu",
+            "não respondeu"
+        ].includes(valor)
+    ) {
+        return "status-perdido";
+    }
+
+    return "status-novo";
 }
 
 
-// ======================================================
-// SEGURANÇA E UTILITÁRIOS
-// ======================================================
-
-function normalizarTexto(valor) {
-
-    return String(valor || "")
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        )
-        .toLowerCase()
-        .trim();
-
-}
-
-
-function escapeHtml(valor) {
-
+function escaparHTML(valor) {
     return String(valor ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
-function escaparCampoCSV(valor) {
-
-    const texto =
-        String(valor ?? "")
-            .replaceAll('"', '""');
-
-    return `"${texto}"`;
-
+function escaparAtributo(valor) {
+    return escaparHTML(valor);
 }
 
 
-async function obterMensagemErro(resposta) {
-
+async function lerMensagemDeErro(resposta) {
     try {
-
-        const resultado =
-            await resposta.json();
+        const corpo = await resposta.json();
 
         return (
-            resultado.erro ||
-            resultado.message ||
-            null
+            corpo.message ||
+            corpo.mensagem ||
+            corpo.error ||
+            corpo.erro ||
+            JSON.stringify(corpo)
         );
-
     } catch {
-
-        return null;
-
+        try {
+            return await resposta.text();
+        } catch {
+            return "";
+        }
     }
-
 }
-
-
-function tratarAtalhos(evento) {
-
-    if (evento.key === "Escape") {
-
-        fecharDrawerSeguro();
-
-    }
-
-    if (
-        evento.ctrlKey &&
-        evento.key.toLowerCase() === "r"
-    ) {
-
-        evento.preventDefault();
-
-        carregarPacientes();
-
-    }
-
-}
-
-
-// ======================================================
-// AUTOATUALIZAÇÃO
-// ======================================================
-
-setInterval(() => {
-
-    if (
-        document.visibilityState === "visible" &&
-        !patientDrawer?.classList.contains("open")
-    ) {
-
-        carregarPacientes();
-
-    }
-
-}, 60000);
-
-
-// ======================================================
-// COMPATIBILIDADE COM O HTML ANTIGO
-// ======================================================
-
-window.abrirPaciente =
-    abrirPaciente;
-
-window.salvarPaciente =
-    salvarPaciente;
-
-
-// ======================================================
-// FINAL
-// ======================================================
-
-console.log(
-    "Atlas Tracker — Central de Pacientes V4 iniciada."
-);
