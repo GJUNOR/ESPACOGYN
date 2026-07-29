@@ -2,153 +2,109 @@ const visitantesService =
 require("../services/visitantes");
 
 
-
-
-
-// ===============================
+// ==========================================
 // LISTAR VISITANTES
-// ===============================
+// ==========================================
 
+async function listarVisitantes(req, res) {
 
-async function listarVisitantes(req,res){
-
-
-    try{
-
+    try {
 
         const dados =
-        await visitantesService.listarVisitantes();
+            await visitantesService
+                .buscarTodosVisitantes();
 
+        return res.status(200).json(
+            dados
+        );
 
-        res.json(dados);
-
-
-
-    }catch(error){
-
+    } catch (error) {
 
         console.error(
             "Erro listando visitantes:",
             error
         );
 
+        return res.status(500).json({
 
-        res.status(500).json({
+            sucesso: false,
 
             erro:
-            error.message
+                error.message ||
+                "Erro ao listar visitantes"
 
         });
 
-
     }
-
 
 }
 
 
+// ==========================================
+// ATUALIZAR PACIENTE PELO CRM
+// ==========================================
 
+async function atualizarVisitante(req, res) {
 
+    try {
 
+        const visitanteId =
+            req.params.id;
 
+        const dadosAtualizacao = {
 
+            nome:
+                req.body.nome,
 
-// ===============================
-// ATUALIZAR PACIENTE
-// ===============================
+            telefone:
+                req.body.telefone,
 
+            status:
+                req.body.status ||
+                req.body.status_financeiro
 
-async function atualizarVisitante(req,res){
-
-
-    try{
-
-
-        const id =
-        req.params.id;
-
-
-
-        const {
-
-            nome,
-
-            telefone
-
-        } = req.body;
-
-
-
-
+        };
 
         const resultado =
-        await visitantesService.atualizarVisitante(
+            await visitantesService.atualizarLead(
+                visitanteId,
+                dadosAtualizacao
+            );
 
-            id,
+        return res.status(200).json({
 
-            {
+            sucesso: true,
 
-                nome,
-
-                telefone
-
-            }
-
-        );
-
-
-
-
-
-        res.json({
-
-            sucesso:true,
-
-            dados:
-            resultado
+            dados: resultado
 
         });
 
-
-
-
-
-    }catch(error){
-
+    } catch (error) {
 
         console.error(
             "Erro atualizando visitante:",
             error
         );
 
+        return res.status(500).json({
 
-        res.status(500).json({
-
-            sucesso:false,
+            sucesso: false,
 
             erro:
-            error.message
+                error.message ||
+                "Erro ao atualizar visitante"
 
         });
 
-
     }
-
 
 }
 
 
-
-
-
-
-
 module.exports = {
-
 
     listarVisitantes,
 
     atualizarVisitante
-
 
 };

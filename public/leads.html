@@ -1,37 +1,78 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Atlas CRM</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta
+        name="description"
+        content="Central de pacientes do Atlas Tracker"
+    >
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <title>Pacientes | Atlas Tracker</title>
 
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <link rel="stylesheet" href="style.css">
+    <!-- Fonte -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Ícones -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+
+    <!-- CSS principal -->
+
+    <link
+        rel="stylesheet"
+        href="/style.css?v=6"
+    >
 
 </head>
 
+
 <body>
+
 
 <div class="layout">
 
-    <!-- ========================= -->
+
+    <!-- ========================================== -->
     <!-- SIDEBAR -->
-    <!-- ========================= -->
+    <!-- ========================================== -->
 
     <aside class="sidebar">
 
-        <div>
+
+        <div class="sidebar-main">
+
+
+            <!-- LOGO -->
 
             <div class="logo">
 
@@ -41,9 +82,10 @@
 
                 </div>
 
+
                 <div class="logo-text">
 
-                    <h2>Atlas CRM</h2>
+                    <h2>Atlas Tracker</h2>
 
                     <span>Espaço da Coluna</span>
 
@@ -51,9 +93,13 @@
 
             </div>
 
+
+            <!-- MENU -->
+
             <nav class="menu">
 
-                <a href="#">
+
+                <a href="/dashboard">
 
                     <i class="fa-solid fa-chart-column"></i>
 
@@ -61,13 +107,18 @@
 
                 </a>
 
-                <a href="#" class="active">
+
+                <a
+                    href="/leads.html"
+                    class="active"
+                >
 
                     <i class="fa-solid fa-user-group"></i>
 
                     <span>Pacientes</span>
 
                 </a>
+
 
                 <a href="#">
 
@@ -77,6 +128,7 @@
 
                 </a>
 
+
                 <a href="#">
 
                     <i class="fa-solid fa-chart-pie"></i>
@@ -84,6 +136,7 @@
                     <span>Resultados</span>
 
                 </a>
+
 
                 <a href="#">
 
@@ -93,9 +146,14 @@
 
                 </a>
 
+
             </nav>
 
+
         </div>
+
+
+        <!-- STATUS DO SISTEMA -->
 
         <div class="sidebar-bottom">
 
@@ -105,7 +163,7 @@
 
                 <div>
 
-                    <strong>Sistema Online</strong>
+                    <strong>Sistema online</strong>
 
                     <small>Supabase conectado</small>
 
@@ -115,50 +173,55 @@
 
         </div>
 
+
     </aside>
 
-    <!-- ========================= -->
-    <!-- CONTEÚDO -->
-    <!-- ========================= -->
+
+
+    <!-- ========================================== -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================================== -->
 
     <main class="content">
 
-        <!-- HEADER -->
+
+        <!-- ====================================== -->
+        <!-- CABEÇALHO -->
+        <!-- ====================================== -->
 
         <header class="topbar">
 
-            <div>
 
-                <h1>
+            <div class="page-heading">
 
-                    Central de Leads
+                <span class="page-eyebrow">
 
-                </h1>
+                    Central de atendimento
+
+                </span>
+
+
+                <h1>Pacientes</h1>
+
 
                 <p>
 
-                    Gerencie pacientes e acompanhe resultados das campanhas.
+                    Consulte novos contatos, acompanhe atendimentos
+                    e organize os próximos passos.
 
                 </p>
 
             </div>
 
+
             <div class="topbar-actions">
 
-                <div class="search-box">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    <input
-                        id="pesquisa"
-                        type="text"
-                        placeholder="Pesquisar paciente...">
-
-                </div>
 
                 <button
                     id="btnAtualizar"
-                    class="secondary-button">
+                    class="secondary-button"
+                    type="button"
+                >
 
                     <i class="fa-solid fa-rotate"></i>
 
@@ -166,9 +229,384 @@
 
                 </button>
 
+
+                <button
+                    id="btnNovoPaciente"
+                    class="primary-button"
+                    type="button"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Novo paciente
+
+                </button>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ====================================== -->
+        <!-- INDICADORES PRINCIPAIS -->
+        <!-- ====================================== -->
+
+        <section class="cards cards-operacionais">
+
+
+            <!-- NOVOS HOJE -->
+
+            <article class="card">
+
+                <div class="card-icon icon-blue">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                </div>
+
+
+                <div class="card-content">
+
+                    <span>Novos hoje</span>
+
+                    <h2 id="novosHoje">0</h2>
+
+                    <small>Aguardando primeiro contato</small>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- EM ATENDIMENTO -->
+
+            <article class="card">
+
+                <div class="card-icon icon-warning">
+
+                    <i class="fa-solid fa-headset"></i>
+
+                </div>
+
+
+                <div class="card-content">
+
+                    <span>Em atendimento</span>
+
+                    <h2 id="emAtendimento">0</h2>
+
+                    <small>Atendimentos em andamento</small>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- AGENDADOS -->
+
+            <article class="card">
+
+                <div class="card-icon icon-purple">
+
+                    <i class="fa-solid fa-calendar-check"></i>
+
+                </div>
+
+
+                <div class="card-content">
+
+                    <span>Agendados</span>
+
+                    <h2 id="agendados">0</h2>
+
+                    <small>Avaliações confirmadas</small>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- CONVERTIDOS -->
+
+            <article class="card">
+
+                <div class="card-icon icon-success">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                </div>
+
+
+                <div class="card-content">
+
+                    <span>Convertidos</span>
+
+                    <h2 id="convertidos">0</h2>
+
+                    <small>Pacientes fechados</small>
+
+                </div>
+
+            </article>
+
+
+        </section>
+
+
+
+        <!-- ====================================== -->
+        <!-- BUSCA E FILTROS -->
+        <!-- ====================================== -->
+
+        <section class="patient-toolbar">
+
+
+            <!-- BUSCA -->
+
+            <div class="search-box patient-search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+
+                <input
+                    id="pesquisa"
+                    type="search"
+                    placeholder="Pesquisar por nome ou telefone..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- FILTROS -->
+
+            <div
+                class="quick-filters"
+                id="filtrosStatus"
+            >
+
+
+                <button
+                    type="button"
+                    class="filter-chip active"
+                    data-status="todos"
+                >
+
+                    Todos
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-chip"
+                    data-status="novo"
+                >
+
+                    Novos
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-chip"
+                    data-status="atendimento"
+                >
+
+                    Em atendimento
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-chip"
+                    data-status="agendado"
+                >
+
+                    Agendados
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-chip"
+                    data-status="convertido"
+                >
+
+                    Convertidos
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-chip"
+                    data-status="perdido"
+                >
+
+                    Perdidos
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ====================================== -->
+        <!-- RESUMO OPERACIONAL -->
+        <!-- ====================================== -->
+
+        <section class="resume-grid">
+
+
+            <!-- AGUARDANDO RETORNO -->
+
+            <article class="resume-card">
+
+                <div class="resume-icon blue">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>Aguardando retorno</small>
+
+                    <h3 id="aguardandoRetorno">0</h3>
+
+                    <span>Pacientes sem resposta</span>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- CONTATO HOJE -->
+
+            <article class="resume-card">
+
+                <div class="resume-icon orange">
+
+                    <i class="fa-solid fa-phone"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>Contato hoje</small>
+
+                    <h3 id="contatoHoje">0</h3>
+
+                    <span>Primeiros atendimentos</span>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- AVALIAÇÕES HOJE -->
+
+            <article class="resume-card">
+
+                <div class="resume-icon green">
+
+                    <i class="fa-solid fa-calendar-check"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>Avaliações hoje</small>
+
+                    <h3 id="avaliacoesHoje">0</h3>
+
+                    <span>Agenda do dia</span>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- RECEITA HOJE -->
+
+            <article class="resume-card">
+
+                <div class="resume-icon purple">
+
+                    <i class="fa-solid fa-money-bill-wave"></i>
+
+                </div>
+
+
+                <div>
+
+                    <small>Receita do dia</small>
+
+                    <h3 id="receitaHoje">
+
+                        R$ 0,00
+
+                    </h3>
+
+                    <span>Fechamentos realizados</span>
+
+                </div>
+
+            </article>
+
+
+        </section>
+
+
+
+        <!-- ====================================== -->
+        <!-- LISTA DE PACIENTES -->
+        <!-- ====================================== -->
+
+        <section class="table-card">
+
+
+            <div class="table-header">
+
+
+                <div>
+
+                    <h2>Lista de pacientes</h2>
+
+                    <span id="contadorPacientes">
+
+                        0 registros encontrados
+
+                    </span>
+
+                </div>
+
+
                 <button
                     id="btnExportar"
-                    class="primary-button">
+                    class="secondary-button"
+                    type="button"
+                >
 
                     <i class="fa-solid fa-file-export"></i>
 
@@ -176,95 +614,16 @@
 
                 </button>
 
-            </div>
-
-        </header>
-
-        <!-- CARDS -->
-
-        <section class="cards">
-
-            <div class="card">
-
-                <div>
-
-                    <span>Total de Leads</span>
-
-                    <h2 id="totalLeads">0</h2>
-
-                </div>
-
-                <i class="fa-solid fa-users"></i>
 
             </div>
 
-            <div class="card">
 
-                <div>
-
-                    <span>Agendados</span>
-
-                    <h2 id="agendados">0</h2>
-
-                </div>
-
-                <i class="fa-solid fa-calendar-check"></i>
-
-            </div>
-
-            <div class="card">
-
-                <div>
-
-                    <span>Convertidos</span>
-
-                    <h2 id="compareceram">0</h2>
-
-                </div>
-
-                <i class="fa-solid fa-circle-check"></i>
-
-            </div>
-
-            <div class="card">
-
-                <div>
-
-                    <span>Receita</span>
-
-                    <h2 id="receitaTotal">R$ 0,00</h2>
-
-                </div>
-
-                <i class="fa-solid fa-sack-dollar"></i>
-
-            </div>
-
-        </section>
-
-        <!-- TABELA -->
-
-        <section class="table-card">
-
-            <div class="table-header">
-
-                <h2>
-
-                    Pacientes
-
-                </h2>
-
-                <span id="contadorPacientes">
-
-                    0 registros
-
-                </span>
-
-            </div>
 
             <div class="table-responsive">
 
-                <table>
+
+                <table class="patients-table">
+
 
                     <thead>
 
@@ -272,27 +631,34 @@
 
                             <th>Paciente</th>
 
-                            <th>Telefone</th>
+                            <th>Contato</th>
 
-                            <th>Campanha</th>
+                            <th>Origem</th>
+
+                            <th>Última interação</th>
 
                             <th>Status</th>
 
-                            <th>Receita</th>
+                            <th class="actions-column">
 
-                            <th>Cadastro</th>
+                                Ações
 
-                            <th></th>
+                            </th>
 
                         </tr>
 
                     </thead>
 
+
                     <tbody id="tabelaPacientes">
+
 
                         <tr>
 
-                            <td colspan="7" class="loading">
+                            <td
+                                colspan="6"
+                                class="loading"
+                            >
 
                                 <i class="fa-solid fa-spinner fa-spin"></i>
 
@@ -301,59 +667,97 @@
                             </td>
 
                         </tr>
-                                            </tbody>
+
+
+                    </tbody>
+
 
                 </table>
 
+
             </div>
+
 
         </section>
 
+
     </main>
+
 
 </div>
 
-<!-- ========================================= -->
-<!-- DRAWER DO PACIENTE -->
-<!-- ========================================= -->
 
-<aside id="patientDrawer" class="patient-drawer">
+
+<!-- ========================================== -->
+<!-- FUNDO DO DRAWER -->
+<!-- ========================================== -->
+
+<div
+    id="drawerOverlay"
+    class="drawer-overlay"
+    onclick="fecharDrawer()"
+></div>
+
+
+
+<!-- ========================================== -->
+<!-- DRAWER DO PACIENTE -->
+<!-- ========================================== -->
+
+<aside
+    id="patientDrawer"
+    class="patient-drawer"
+>
+
+
+    <!-- CABEÇALHO -->
 
     <div class="drawer-header">
+
 
         <div>
 
             <h2 id="drawerNome">
 
-                Nome do Paciente
+                Paciente
 
             </h2>
 
+
             <small id="drawerCodigoLead">
 
-                Lead #0000
+                Paciente sem código
 
             </small>
 
         </div>
 
+
         <button
             class="drawer-close"
-            onclick="fecharDrawer()">
+            type="button"
+            onclick="fecharDrawer()"
+            aria-label="Fechar painel"
+        >
 
             <i class="fa-solid fa-xmark"></i>
 
         </button>
 
+
     </div>
+
+
+
+    <!-- CONTEÚDO -->
 
     <div class="drawer-body">
 
-        <!-- ========================= -->
-        <!-- Informações -->
-        <!-- ========================= -->
 
-        <div class="drawer-section">
+        <!-- INFORMAÇÕES -->
+
+        <section class="drawer-section">
+
 
             <h3>
 
@@ -363,7 +767,9 @@
 
             </h3>
 
+
             <div class="info-grid">
+
 
                 <div>
 
@@ -373,6 +779,7 @@
 
                 </div>
 
+
                 <div>
 
                     <span>Cadastro</span>
@@ -380,6 +787,7 @@
                     <strong id="drawerCadastro">-</strong>
 
                 </div>
+
 
                 <div>
 
@@ -389,6 +797,7 @@
 
                 </div>
 
+
                 <div>
 
                     <span>Status</span>
@@ -397,15 +806,18 @@
 
                 </div>
 
+
             </div>
 
-        </div>
 
-        <!-- ========================= -->
-        <!-- Marketing -->
-        <!-- ========================= -->
+        </section>
 
-        <div class="drawer-section">
+
+
+        <!-- MARKETING -->
+
+        <section class="drawer-section">
+
 
             <h3>
 
@@ -415,7 +827,9 @@
 
             </h3>
 
+
             <div class="info-grid">
+
 
                 <div>
 
@@ -425,6 +839,7 @@
 
                 </div>
 
+
                 <div>
 
                     <span>Conjunto</span>
@@ -432,6 +847,7 @@
                     <strong id="drawerConjunto">-</strong>
 
                 </div>
+
 
                 <div>
 
@@ -441,6 +857,7 @@
 
                 </div>
 
+
                 <div>
 
                     <span>Origem</span>
@@ -449,337 +866,363 @@
 
                 </div>
 
+
             </div>
 
-        </div>
 
-        <!-- ========================= -->
-        <!-- Resultado -->
-        <!-- ========================= -->
+        </section>
 
-        <div class="drawer-section">
+
+
+        <!-- RESULTADO -->
+
+        <section class="drawer-section">
+
 
             <h3>
 
-                <i class="fa-solid fa-sack-dollar"></i>
+                <i class="fa-solid fa-chart-line"></i>
 
-                Resultado
+                Resultado do atendimento
 
             </h3>
 
-            <div class="form-group">
 
-                <label>
+            <div class="form-grid">
 
-                    Valor da Conversão
 
-                </label>
+                <div class="form-group">
 
-                <input
-                    id="valorConversao"
-                    type="number"
-                    placeholder="0,00">
+                    <label for="statusFinanceiro">
+
+                        Status
+
+                    </label>
+
+
+                    <select id="statusFinanceiro">
+
+                        <option value="novo">
+
+                            Novo
+
+                        </option>
+
+                        <option value="atendimento">
+
+                            Em atendimento
+
+                        </option>
+
+                        <option value="agendado">
+
+                            Agendado
+
+                        </option>
+
+                        <option value="convertido">
+
+                            Convertido
+
+                        </option>
+
+                        <option value="perdido">
+
+                            Perdido
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="valorConversao">
+
+                        Valor da conversão
+
+                    </label>
+
+
+                    <input
+                        id="valorConversao"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0,00"
+                    >
+
+                </div>
+
 
             </div>
 
-            <div class="form-group">
-
-                <label>
-
-                    Status Financeiro
-
-                </label>
-
-                <select id="statusFinanceiro">
-
-                    <option>Não converteu</option>
-                    <option>Converteu</option>
-
-                </select>
-
-            </div>
 
             <div class="form-group">
 
-                <label>
+                <label for="observacoes">
 
                     Observações
 
                 </label>
 
+
                 <textarea
                     id="observacoes"
-                    rows="4"
-                    placeholder="Digite alguma observação..."></textarea>
+                    rows="5"
+                    placeholder="Digite informações importantes sobre o atendimento..."
+                ></textarea>
 
             </div>
 
-        </div>
 
-        <!-- ========================= -->
-        <!-- Botão Dados Técnicos -->
-        <!-- ========================= -->
+        </section>
 
-        <div class="drawer-section">
 
-            <button
-                class="technical-button"
-                onclick="abrirTecnico()">
+
+        <!-- DADOS TÉCNICOS -->
+
+        <section class="drawer-section">
+
+
+            <h3>
 
                 <i class="fa-solid fa-code"></i>
 
-                Dados Técnicos
+                Dados de rastreamento
 
-            </button>
+            </h3>
 
-        </div>
+
+            <div class="technical-grid">
+
+
+                <div>
+
+                    <span>UTM Source</span>
+
+                    <strong id="utm_source">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>UTM Medium</span>
+
+                    <strong id="utm_medium">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>UTM Campaign</span>
+
+                    <strong id="utm_campaign">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>UTM Content</span>
+
+                    <strong id="utm_content">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>UTM Term</span>
+
+                    <strong id="utm_term">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>FBCLID</span>
+
+                    <strong id="fbclid">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>FBP</span>
+
+                    <strong id="fbp">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>FBC</span>
+
+                    <strong id="fbc">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>IP</span>
+
+                    <strong id="ip">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Dispositivo</span>
+
+                    <strong id="device">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Landing page</span>
+
+                    <strong id="landing_page">-</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Referência</span>
+
+                    <strong id="referer">-</strong>
+
+                </div>
+
+
+                <div class="technical-full">
+
+                    <span>User agent</span>
+
+                    <strong id="useragent">-</strong>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
 
     </div>
 
-    <!-- Rodapé -->
+
+
+    <!-- RODAPÉ DO DRAWER -->
 
     <div class="drawer-footer">
 
+
         <button
-            class="cancel-button"
-            onclick="fecharDrawer()">
+            class="secondary-button"
+            type="button"
+            onclick="fecharDrawer()"
+        >
 
             Cancelar
 
         </button>
 
+
         <button
             id="btnSalvarDrawer"
-            class="save-button">
+            class="primary-button"
+            type="button"
+        >
 
             <i class="fa-solid fa-floppy-disk"></i>
 
-            Salvar
+            Salvar alterações
 
         </button>
 
+
     </div>
+
 
 </aside>
-<!-- ========================================= -->
-<!-- PAINEL TÉCNICO -->
-<!-- ========================================= -->
 
-<div id="technicalPanel" class="technical-panel">
 
-    <div class="technical-content">
 
-        <div class="technical-header">
-
-            <h2>
-
-                Dados Técnicos
-
-            </h2>
-
-            <button onclick="fecharTecnico()">
-
-                <i class="fa-solid fa-xmark"></i>
-
-            </button>
-
-        </div>
-
-        <div class="technical-body">
-
-            <div class="tech-item">
-
-                <span>UTM Source</span>
-
-                <strong id="utm_source">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>UTM Medium</span>
-
-                <strong id="utm_medium">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>UTM Campaign</span>
-
-                <strong id="utm_campaign">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>UTM Content</span>
-
-                <strong id="utm_content">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>UTM Term</span>
-
-                <strong id="utm_term">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>FBCLID</span>
-
-                <strong id="fbclid">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>FBP</span>
-
-                <strong id="fbp">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>FBC</span>
-
-                <strong id="fbc">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>IP</span>
-
-                <strong id="ip">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>User Agent</span>
-
-                <strong id="useragent">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>Landing Page</span>
-
-                <strong id="landing_page">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>Referer</span>
-
-                <strong id="referer">-</strong>
-
-            </div>
-
-            <div class="tech-item">
-
-                <span>Dispositivo</span>
-
-                <strong id="device">-</strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Overlay -->
-
-<div id="overlay" class="overlay"></div>
-
-<!-- Campo oculto -->
-
-<input
-    type="hidden"
-    id="pacienteId">
-
-<!-- ========================================= -->
-<!-- SCRIPTS -->
-<!-- ========================================= -->
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script src="leads.js"></script>
+<!-- ========================================== -->
+<!-- FUNÇÕES DO DRAWER -->
+<!-- ========================================== -->
 
 <script>
 
-function abrirDrawer(){
+    function abrirDrawer() {
 
-    document
-        .getElementById("patientDrawer")
-        .classList.add("open");
+        const drawer =
+            document.getElementById("patientDrawer");
 
-    document
-        .getElementById("overlay")
-        .classList.add("show");
+        const overlay =
+            document.getElementById("drawerOverlay");
 
-}
 
-function fecharDrawer(){
+        drawer?.classList.add("open");
 
-    document
-        .getElementById("patientDrawer")
-        .classList.remove("open");
+        overlay?.classList.add("open");
 
-    document
-        .getElementById("overlay")
-        .classList.remove("show");
+        document.body.classList.add("drawer-open");
 
-    fecharTecnico();
+    }
 
-}
 
-function abrirTecnico(){
+    function fecharDrawer() {
 
-    document
-        .getElementById("technicalPanel")
-        .classList.add("show");
+        const drawer =
+            document.getElementById("patientDrawer");
 
-}
+        const overlay =
+            document.getElementById("drawerOverlay");
 
-function fecharTecnico(){
 
-    document
-        .getElementById("technicalPanel")
-        .classList.remove("show");
+        drawer?.classList.remove("open");
 
-}
+        overlay?.classList.remove("open");
 
-document
-    .getElementById("overlay")
-    .addEventListener("click", fecharDrawer);
+        document.body.classList.remove("drawer-open");
 
-const btnSalvar = document.getElementById("btnSalvarDrawer");
+    }
 
-if(btnSalvar){
 
-    btnSalvar.addEventListener("click", ()=>{
+    window.abrirDrawer =
+        abrirDrawer;
 
-        if(typeof salvarPaciente === "function"){
 
-            salvarPaciente();
-
-        }
-
-    });
-
-}
+    window.fecharDrawer =
+        fecharDrawer;
 
 </script>
+
+
+
+<!-- ========================================== -->
+<!-- BIBLIOTECAS E JAVASCRIPT -->
+<!-- ========================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="/leads.js?v=6"></script>
+
 
 </body>
 
